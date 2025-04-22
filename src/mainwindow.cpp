@@ -1,10 +1,18 @@
-
 #include "mainwindow.h"
 #include <QImageReader>
 #include <QStandardPaths>
 #include <QDateTime>
 #include <QAudioBuffer>
 #include <algorithm>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QTextStream>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QClipboard>
+#include <QFile>
+#include <QDir>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), isRecording(false), recordingDuration(0) {
     setupUI();
@@ -35,104 +43,112 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::setupUI() {
-    // Create Tab Widget
-    tabWidget = new QTabWidget(this);
+    // Create central widget and layout
+    centralWidget = new QWidget(this);
+    setCentralWidget(centralWidget);
+    QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+
+    // Input Section
+    inputGroup = new QGroupBox("Input Text", this);
+    QVBoxLayout *inputLayout = new QVBoxLayout(inputGroup);
     
-    // Input Tab
-    inputTab = new QWidget();
-    inputTypeGroup = new QGroupBox("Input Type");
-    textInputRadio = new QRadioButton("Text");
-    audioInputRadio = new QRadioButton("Audio");
-    imageInputRadio = new QRadioButton("Image");
-    textInputRadio->setChecked(true);
+    inputTextEdit = new QTextEdit(this);
+    inputTextEdit->setPlaceholderText("Enter or paste your text here (max 1000 words)...");
+    inputTextEdit->setMinimumHeight(200);
     
-    QVBoxLayout *inputTypeLayout = new QVBoxLayout();
-    inputTypeLayout->addWidget(textInputRadio);
-    inputTypeLayout->addWidget(audioInputRadio);
-    inputTypeLayout->addWidget(imageInputRadio);
-    inputTypeGroup->setLayout(inputTypeLayout);
+    QHBoxLayout *inputButtonsLayout = new QHBoxLayout();
+    importButton = new QPushButton("Import Text File", this);
+    wordCountLabel = new QLabel("Word Count: 0", this);
+    inputButtonsLayout->addWidget(importButton);
+    inputButtonsLayout->addStretch();
+    inputButtonsLayout->addWidget(wordCountLabel);
     
-    inputTextEdit = new QTextEdit();
-    inputTextEdit->setPlaceholderText("Enter or paste your text here...");
+    inputLayout->addWidget(inputTextEdit);
+    inputLayout->addLayout(inputButtonsLayout);
+
+    // Options Section
+    optionsGroup = new QGroupBox("Note Generation Options", this);
+    QVBoxLayout *optionsLayout = new QVBoxLayout(optionsGroup);
     
-    importButton = new QPushButton("Import File");
-    recordButton = new QPushButton("Record Audio");
-    recordButton->setCheckable(true);
-    recordingLevelBar = new QProgressBar();
-    recordingLevelBar->setRange(0, 100);
-    recordingLevelBar->setValue(0);
-    recordingLevelBar->setTextVisible(false);
-    recordingLevelBar->setVisible(false);
-    recordingStatusLabel = new QLabel("Ready to record");
-    recordingStatusLabel->setVisible(false);
-    wordCountLabel = new QLabel("Words: 0");
-    
-    // Options Tab
-    optionsTab = new QWidget();
-    summaryOptionsGroup = new QGroupBox("Summary Style");
-    briefRadio = new QRadioButton("Brief");
-    detailedRadio = new QRadioButton("Detailed");
-    bulletPointsRadio = new QRadioButton("Bullet Points");
+    QHBoxLayout *modeLayout = new QHBoxLayout();
+    briefRadio = new QRadioButton("Brief Summary", this);
+    detailedRadio = new QRadioButton("Detailed Summary", this);
+    bulletPointsRadio = new QRadioButton("Bullet Points", this);
     briefRadio->setChecked(true);
+    modeLayout->addWidget(briefRadio);
+    modeLayout->addWidget(detailedRadio);
+    modeLayout->addWidget(bulletPointsRadio);
     
-    QVBoxLayout *summaryOptionsLayout = new QVBoxLayout();
-    summaryOptionsLayout->addWidget(briefRadio);
-    summaryOptionsLayout->addWidget(detailedRadio);
-    summaryOptionsLayout->addWidget(bulletPointsRadio);
-    summaryOptionsGroup->setLayout(summaryOptionsLayout);
+    QHBoxLayout *lengthLayout = new QHBoxLayout();
+    summaryLengthLabel = new QLabel("Summary Length:", this);
+    summaryLengthSpinBox = new QSpinBox(this);
+    summaryLengthSpinBox->setRange(50, 500);
+    summaryLengthSpinBox->setValue(150);
+    summaryLengthSpinBox->setSingleStep(50);
+    lengthLayout->addWidget(summaryLengthLabel);
+    lengthLayout->addWidget(summaryLengthSpinBox);
+    lengthLayout->addStretch();
     
-    summaryLengthLabel = new QLabel("Summary Length:");
-    summaryLengthSpinBox = new QSpinBox();
-    summaryLengthSpinBox->setRange(1, 10);
-    summaryLengthSpinBox->setValue(3);
-    summaryLengthSpinBox->setSuffix(" paragraphs");
-    
-    readabilityLabel = new QLabel("Readability Level:");
-    readabilitySlider = new QSlider(Qt::Horizontal);
+    QHBoxLayout *readabilityLayout = new QHBoxLayout();
+    readabilityLabel = new QLabel("Readability Level:", this);
+    readabilitySlider = new QSlider(Qt::Horizontal, this);
     readabilitySlider->setRange(1, 5);
     readabilitySlider->setValue(3);
-    readabilitySlider->setTickPosition(QSlider::TicksBelow);
-    readabilitySlider->setTickInterval(1);
+    readabilityLayout->addWidget(readabilityLabel);
+    readabilityLayout->addWidget(readabilitySlider);
+    readabilityLayout->addStretch();
     
-    // Output
-    outputTextEdit = new QTextEdit();
-    outputTextEdit->setPlaceholderText("Your notes will appear here...");
+    optionsLayout->addLayout(modeLayout);
+    optionsLayout->addLayout(lengthLayout);
+    optionsLayout->addLayout(readabilityLayout);
+
+    // Output Section
+    outputGroup = new QGroupBox("Generated Notes", this);
+    QVBoxLayout *outputLayout = new QVBoxLayout(outputGroup);
+    
+    outputTextEdit = new QTextEdit(this);
     outputTextEdit->setReadOnly(true);
+    outputTextEdit->setMinimumHeight(200);
     
-    generateNotesButton = new QPushButton("Generate Notes");
-    copyButton = new QPushButton("Copy to Clipboard");
-    saveButton = new QPushButton("Save Notes");
-    clearButton = new QPushButton("Clear All");
+    QHBoxLayout *outputButtonsLayout = new QHBoxLayout();
+    generateNotesButton = new QPushButton("Generate Notes", this);
+    copyButton = new QPushButton("Copy to Clipboard", this);
+    saveButton = new QPushButton("Save Notes", this);
+    clearButton = new QPushButton("Clear", this);
+    outputButtonsLayout->addWidget(generateNotesButton);
+    outputButtonsLayout->addWidget(copyButton);
+    outputButtonsLayout->addWidget(saveButton);
+    outputButtonsLayout->addWidget(clearButton);
+    
+    outputLayout->addWidget(outputTextEdit);
+    outputLayout->addLayout(outputButtonsLayout);
+
+    // Add all sections to main layout
+    mainLayout->addWidget(inputGroup);
+    mainLayout->addWidget(optionsGroup);
+    mainLayout->addWidget(outputGroup);
+
+    // Status bar
+    statusBar = new QStatusBar(this);
+    setStatusBar(statusBar);
+    statusBar->showMessage("Ready");
 }
 
 void MainWindow::setupMenuBar() {
     QMenuBar *menuBar = new QMenuBar(this);
     setMenuBar(menuBar);
     
-    QMenu *fileMenu = menuBar->addMenu("&File");
-    QAction *importAction = fileMenu->addAction("&Import");
-    importAction->setShortcut(QKeySequence::Open);
+    QMenu *fileMenu = menuBar->addMenu("File");
+    QAction *importAction = fileMenu->addAction("Import Text File");
+    QAction *saveAction = fileMenu->addAction("Save Notes");
+    QAction *exitAction = fileMenu->addAction("Exit");
+    
+    QMenu *helpMenu = menuBar->addMenu("Help");
+    QAction *aboutAction = helpMenu->addAction("About");
+    
     connect(importAction, &QAction::triggered, this, &MainWindow::onImportButtonClicked);
-    
-    QAction *saveAction = fileMenu->addAction("&Save");
-    saveAction->setShortcut(QKeySequence::Save);
     connect(saveAction, &QAction::triggered, this, &MainWindow::onSaveButtonClicked);
-    
-    fileMenu->addSeparator();
-    QAction *exitAction = fileMenu->addAction("E&xit");
-    exitAction->setShortcut(QKeySequence::Quit);
-    connect(exitAction, &QAction::triggered, this, &MainWindow::close);
-    
-    QMenu *editMenu = menuBar->addMenu("&Edit");
-    QAction *copyAction = editMenu->addAction("&Copy");
-    copyAction->setShortcut(QKeySequence::Copy);
-    connect(copyAction, &QAction::triggered, this, &MainWindow::onCopyButtonClicked);
-    
-    QAction *clearAction = editMenu->addAction("Clear &All");
-    connect(clearAction, &QAction::triggered, this, &MainWindow::onClearButtonClicked);
-    
-    QMenu *helpMenu = menuBar->addMenu("&Help");
-    QAction *aboutAction = helpMenu->addAction("&About");
+    connect(exitAction, &QAction::triggered, this, &QApplication::quit);
     connect(aboutAction, &QAction::triggered, this, &MainWindow::onAboutAction);
 }
 
@@ -254,124 +270,163 @@ void MainWindow::dropEvent(QDropEvent *event) {
 }
 
 void MainWindow::onImportButtonClicked() {
-    QString filter;
+    QString fileName = QFileDialog::getOpenFileName(this,
+        "Import Text File", "",
+        "Text Files (*.txt);;All Files (*)");
     
-    if (textInputRadio->isChecked()) {
-        filter = "Text Files (*.txt);;Word Documents (*.doc *.docx);;PDF Files (*.pdf);;All Files (*)";
-    } else if (audioInputRadio->isChecked()) {
-        filter = "Audio Files (*.mp3 *.wav *.ogg *.m4a);;All Files (*)";
-    } else if (imageInputRadio->isChecked()) {
-        filter = "Image Files (*.jpg *.jpeg *.png *.gif *.bmp);;All Files (*)";
-    }
+    if (fileName.isEmpty())
+        return;
     
-    QString filePath = QFileDialog::getOpenFileName(this, "Import File", QDir::homePath(), filter);
-    
-    if (filePath.isEmpty()) {
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "Error",
+            "Could not open file: " + file.errorString());
         return;
     }
     
-    if (textInputRadio->isChecked()) {
-        QFile file(filePath);
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            QTextStream stream(&file);
-            inputTextEdit->setText(stream.readAll());
-            file.close();
-        }
-    } else if (audioInputRadio->isChecked()) {
-        processAudioInput(filePath);
-    } else if (imageInputRadio->isChecked()) {
-        processImageInput(filePath);
-    }
+    QTextStream in(&file);
+    inputTextEdit->setPlainText(in.readAll());
+    file.close();
 }
 
 void MainWindow::onGenerateNotesButtonClicked() {
+    if (!validateInputText())
+        return;
+    
     statusBar->showMessage("Generating notes...");
     
-    QString inputText;
-    if (textInputRadio->isChecked()) {
-        inputText = inputTextEdit->toPlainText();
-        if (inputText.isEmpty()) {
-            QMessageBox::warning(this, "Empty Input", "Please enter some text to generate notes.");
-            statusBar->showMessage("Ready");
-            return;
-        }
-    } else if (!inputTextEdit->toPlainText().isEmpty()) {
-        // If audio or image was processed, the text should already be in the text edit
-        inputText = inputTextEdit->toPlainText();
-    } else {
-        QMessageBox::warning(this, "No Input", "Please import or record audio, or import an image first.");
-        statusBar->showMessage("Ready");
+    QString inputText = inputTextEdit->toPlainText();
+    QString mode = summarizationModeString();
+    
+    // Call the C++ processing function
+    std::string result = processText(inputText.toStdString(), mode.toStdString());
+    
+    // Parse the JSON response
+    QJsonParseError jsonError;
+    QJsonDocument doc = QJsonDocument::fromJson(QString::fromStdString(result).toUtf8(), &jsonError);
+    
+    if (jsonError.error != QJsonParseError::NoError) {
+        QMessageBox::critical(this, "Error", 
+            "Failed to parse response: " + jsonError.errorString());
+        statusBar->showMessage("Error processing response");
         return;
     }
     
-    // Get the processing mode
-    std::string mode = summarizationModeString().toStdString();
+    if (doc.isObject()) {
+        QJsonObject obj = doc.object();
+        
+        // Check for success flag
+        if (!obj["success"].toBool()) {
+            QString errorMessage = obj["error"].toString();
+            if (errorMessage.isEmpty()) {
+                errorMessage = "Unknown error occurred";
+            }
+            QMessageBox::warning(this, "Error", errorMessage);
+            statusBar->showMessage("Error generating notes");
+            return;
+        }
+        
+        // Format the output
+        QString formattedOutput;
+        
+        // Add summary if present
+        if (obj.contains("summary")) {
+            formattedOutput += "Summary:\n" + obj["summary"].toString() + "\n\n";
+        }
+        
+        // Add key concepts if present
+        if (obj.contains("key_concepts") && obj["key_concepts"].isArray()) {
+            formattedOutput += "Key Concepts:\n";
+            QJsonArray concepts = obj["key_concepts"].toArray();
+            for (const QJsonValue& concept : concepts) {
+                QJsonObject conceptObj = concept.toObject();
+                formattedOutput += "• " + conceptObj["concept"].toString() + ":\n";
+                formattedOutput += "  " + conceptObj["definition"].toString() + "\n\n";
+            }
+        }
+        
+        // Add formulas if present
+        if (obj.contains("formulas") && obj["formulas"].isArray()) {
+            formattedOutput += "Formulas:\n";
+            QJsonArray formulas = obj["formulas"].toArray();
+            for (const QJsonValue& formula : formulas) {
+                QJsonObject formulaObj = formula.toObject();
+                formattedOutput += "• " + formulaObj["formula"].toString() + "\n";
+            }
+            formattedOutput += "\n";
+        }
+        
+        // Add topics if present
+        if (obj.contains("topics") && obj["topics"].isArray()) {
+            formattedOutput += "Topics:\n";
+            QJsonArray topics = obj["topics"].toArray();
+            for (const QJsonValue& topic : topics) {
+                QJsonObject topicObj = topic.toObject();
+                formattedOutput += "• " + topicObj["topic"].toString() + 
+                                 " (Frequency: " + QString::number(topicObj["frequency"].toInt()) + ")\n";
+            }
+        }
+        
+        outputTextEdit->setPlainText(formattedOutput);
+        statusBar->showMessage("Notes generated successfully");
+    } else {
+        QMessageBox::warning(this, "Error", "Invalid response format");
+        statusBar->showMessage("Error generating notes");
+    }
+}
+
+bool MainWindow::validateInputText() {
+    QString text = inputTextEdit->toPlainText();
+    int wordCount = text.split(QRegExp("\\s+"), QString::SkipEmptyParts).count();
     
-    // Process the text with the C++ engine
-    std::string result = processText(inputText.toStdString(), mode);
+    if (wordCount > 1000) {
+        QMessageBox::warning(this, "Input Error", 
+            "Input text exceeds 1000 words limit. Please reduce the text length.");
+        return false;
+    }
     
-    // Display the result
-    outputTextEdit->setText(QString::fromStdString(result));
+    if (wordCount == 0) {
+        QMessageBox::warning(this, "Input Error", 
+            "Please enter some text to process.");
+        return false;
+    }
     
-    statusBar->showMessage("Notes generated successfully");
+    return true;
 }
 
 QString MainWindow::summarizationModeString() {
-    QString mode;
-    
-    if (briefRadio->isChecked()) {
-        mode = "brief";
-    } else if (detailedRadio->isChecked()) {
-        mode = "detailed";
-    } else if (bulletPointsRadio->isChecked()) {
-        mode = "bullets";
-    }
-    
-    // Add length parameter
-    mode += "_" + QString::number(summaryLengthSpinBox->value());
-    
-    // Add readability parameter
-    mode += "_" + QString::number(readabilitySlider->value());
-    
-    return mode;
+    if (briefRadio->isChecked()) return "brief";
+    if (detailedRadio->isChecked()) return "detailed";
+    if (bulletPointsRadio->isChecked()) return "bullet_points";
+    return "brief";
 }
 
 void MainWindow::onCopyButtonClicked() {
-    if (outputTextEdit->toPlainText().isEmpty()) {
-        QMessageBox::warning(this, "No Content", "There are no notes to copy.");
-        return;
-    }
-    
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(outputTextEdit->toPlainText());
-    
-    statusBar->showMessage("Notes copied to clipboard", 3000);
+    statusBar->showMessage("Notes copied to clipboard");
 }
 
 void MainWindow::onSaveButtonClicked() {
-    if (outputTextEdit->toPlainText().isEmpty()) {
-        QMessageBox::warning(this, "No Content", "There are no notes to save.");
+    QString fileName = QFileDialog::getSaveFileName(this,
+        "Save Notes", "",
+        "Text Files (*.txt);;All Files (*)");
+    
+    if (fileName.isEmpty())
+        return;
+    
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QMessageBox::warning(this, "Error",
+            "Could not save file: " + file.errorString());
         return;
     }
     
-    QString filePath = QFileDialog::getSaveFileName(this, "Save Notes", 
-                                                   QDir::homePath() + "/notes.txt", 
-                                                   "Text Files (*.txt);;All Files (*)");
+    QTextStream out(&file);
+    out << outputTextEdit->toPlainText();
+    file.close();
     
-    if (filePath.isEmpty()) {
-        return;
-    }
-    
-    QFile file(filePath);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QTextStream stream(&file);
-        stream << outputTextEdit->toPlainText();
-        file.close();
-        
-        statusBar->showMessage("Notes saved successfully", 3000);
-    } else {
-        QMessageBox::critical(this, "Error", "Could not save the file.");
-    }
+    statusBar->showMessage("Notes saved successfully");
 }
 
 void MainWindow::onClearButtonClicked() {
@@ -380,7 +435,7 @@ void MainWindow::onClearButtonClicked() {
     recordingLevelBar->setValue(0);
     recordingStatusLabel->setText("Ready to record");
     
-    statusBar->showMessage("All content cleared", 3000);
+    statusBar->showMessage("Cleared");
 }
 
 void MainWindow::onRecordButtonToggled(bool checked) {
@@ -515,16 +570,20 @@ void MainWindow::onInputTypeChanged() {
 
 void MainWindow::onAboutAction() {
     QMessageBox::about(this, "About TextMaster",
-                      "<h2>TextMaster</h2>"
-                      "<p>Version 1.0</p>"
-                      "<p>An advanced note summarization tool that converts audio, text, "
-                      "and images into concise, well-organized notes.</p>"
-                      "<p>Powered by AI algorithms and natural language processing.</p>"
-                      "<p>© 2025 TextMaster</p>");
+        "TextMaster\n\n"
+        "A comprehensive Windows application for converting text (max 1000 words) into concise notes.\n\n"
+        "Version 1.0.0\n"
+        "Copyright © 2024");
 }
 
 void MainWindow::updateWordCount() {
     QString text = inputTextEdit->toPlainText();
-    int wordCount = text.split(QRegExp("\\s+"), Qt::SkipEmptyParts).count();
-    wordCountLabel->setText(QString("Words: %1").arg(wordCount));
+    int wordCount = text.split(QRegExp("\\s+"), QString::SkipEmptyParts).count();
+    wordCountLabel->setText(QString("Word Count: %1").arg(wordCount));
+    
+    if (wordCount > 1000) {
+        wordCountLabel->setStyleSheet("color: red;");
+    } else {
+        wordCountLabel->setStyleSheet("");
+    }
 }

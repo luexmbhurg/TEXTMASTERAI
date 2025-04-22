@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -8,7 +7,12 @@ import traceback
 import json
 import re
 import tempfile
+import warnings
 from typing import List, Dict, Any, Union, Optional
+from collections import Counter
+
+# Suppress specific warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module="transformers")
 
 try:
     import spacy
@@ -38,270 +42,405 @@ except OSError:
     subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
     nlp = spacy.load("en_core_web_sm")
 
-# Initialize summarization model
+# Initialize models
+summarizer = None
+sentiment_analyzer = None
+
 def get_summarizer():
     model_name = "facebook/bart-large-cnn"
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
-    return summarizer
+    return pipeline("summarization", model=model, tokenizer=tokenizer)
 
-# Initialize globals
-summarizer = None
+def get_sentiment_analyzer():
+    return pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
 
-def extract_keywords(doc: Doc, top_n: int = 10) -> List[str]:
-    """Extract the most important keywords from a document."""
-    # Extract noun phrases and named entities
-    keywords = []
-    
-    # Get named entities
-    for ent in doc.ents:
-        keywords.append(ent.text)
-    
-    # Get important noun chunks
-    for chunk in doc.noun_chunks:
-        if not any(chunk.text.lower() in keyword.lower() for keyword in keywords):
-            keywords.append(chunk.text)
-    
-    # Get important single tokens (nouns, verbs, adjectives)
-    important_pos = {'NOUN', 'PROPN', 'VERB', 'ADJ'}
-    for token in doc:
-        if token.pos_ in important_pos and not any(token.text.lower() in keyword.lower() for keyword in keywords):
-            if not token.is_stop and len(token.text) > 1:
-                keywords.append(token.text)
-    
-    # Remove duplicates and sort by frequency
-    keyword_counts = {}
-    for keyword in keywords:
-        keyword_lower = keyword.lower()
-        if keyword_lower in keyword_counts:
-            keyword_counts[keyword_lower] += 1
-        else:
-            keyword_counts[keyword_lower] = 1
-    
-    # Sort by count, then by length (prefer longer keywords)
-    sorted_keywords = sorted(
-        list(set(keywords)), 
-        key=lambda x: (
-            -keyword_counts[x.lower()],  # Higher count first
-            -len(x)                       # Longer words first
-        )
-    )
-    
-    return sorted_keywords[:top_n]
-
-def segment_text(text: str, max_length: int = 1024) -> List[str]:
-    """Split text into segments that don't exceed the model's max token limit."""
-    # Use spaCy to split by sentences
-    doc = nlp(text)
-    sentences = [sent.text for sent in doc.sents]
-    
-    segments = []
-    current_segment = []
-    current_length = 0
-    
-    for sentence in sentences:
-        # Approximate token count (rough estimate)
-        sentence_length = len(sentence.split())
-        
-        if current_length + sentence_length > max_length:
-            # Current segment is full, start a new one
-            segments.append(" ".join(current_segment))
-            current_segment = [sentence]
-            current_length = sentence_length
-        else:
-            # Add to current segment
-            current_segment.append(sentence)
-            current_length += sentence_length
-    
-    # Add the last segment if it's not empty
-    if current_segment:
-        segments.append(" ".join(current_segment))
-    
-    return segments
-
-def generate_summary(text: str, mode: str, max_length: int = 150) -> str:
-    """Generate a summary based on the specified mode."""
-    global summarizer
-    
-    if not summarizer:
-        summarizer = get_summarizer()
-    
-    # Parse the mode string
-    mode_parts = mode.split('_')
-    summary_type = mode_parts[0]  # 'brief', 'detailed', or 'bullets'
-    
-    summary_length = 3  # default
-    if len(mode_parts) > 1:
-        try:
-            summary_length = int(mode_parts[1])
-        except ValueError:
-            pass
-    
-    readability_level = 3  # default (1=elementary, 5=advanced)
-    if len(mode_parts) > 2:
-        try:
-            readability_level = int(mode_parts[2])
-        except ValueError:
-            pass
-    
-    # Adjust max length based on summary type
-    if summary_type == 'brief':
-        max_length = min(100, max_length)
-    elif summary_type == 'detailed':
-        max_length = max(200, max_length)
-    
-    # Adjust max length based on summary length setting (paragraphs)
-    max_length = max_length * summary_length // 3
-    
-    # Segment the text to fit into the model
-    segments = segment_text(text)
-    segment_summaries = []
-    
-    for segment in segments:
-        if len(segment.strip()) == 0:
-            continue
-            
-        try:
-            summary = summarizer(
-                segment, 
-                max_length=max_length, 
-                min_length=max(30, max_length // 4),
-                do_sample=False
-            )
-            segment_summaries.append(summary[0]['summary_text'])
-        except Exception as e:
-            print(f"Error summarizing segment: {str(e)}", file=sys.stderr)
-            traceback.print_exc(file=sys.stderr)
-            # If summarization fails, include the first part of the segment
-            segment_summaries.append(segment[:min(len(segment), 100)] + "...")
-    
-    # Combine segment summaries
-    combined_summary = " ".join(segment_summaries)
-    
-    # Post-process based on summary type
-    if summary_type == 'bullets':
-        # Convert to bullet points
-        doc = nlp(combined_summary)
-        bullet_points = []
-        
-        for sent in doc.sents:
-            # Clean and format the sentence
-            sentence = sent.text.strip()
-            if sentence:
-                bullet_points.append(f"• {sentence}")
-        
-        return "\n".join(bullet_points)
+def calculate_optimal_length(text: str) -> int:
+    """Calculate optimal summary length based on input text length."""
+    word_count = len(text.split())
+    # For very short texts, use a higher ratio
+    if word_count < 50:
+        return min(50, word_count)
+    # For medium texts, use about 1/3 of the length
+    elif word_count < 200:
+        return max(50, word_count // 3)
+    # For longer texts, use about 1/4 of the length
     else:
-        # Apply readability adjustments
-        if readability_level <= 2:
-            # Simplify language for elementary level
-            combined_summary = simplify_text(combined_summary)
-        elif readability_level >= 4:
-            # Use more sophisticated language
-            combined_summary = enhance_text(combined_summary)
-        
-        return combined_summary
+        return max(100, word_count // 4)
 
-def simplify_text(text: str) -> str:
-    """Simplify text for lower reading levels."""
-    doc = nlp(text)
-    simplified_sentences = []
+def clean_text(text: str) -> str:
+    """Clean and format text by removing extra whitespace and normalizing punctuation."""
+    # Remove extra whitespace
+    text = re.sub(r'\s+', ' ', text.strip())
+    # Normalize bullet points and numbering
+    text = re.sub(r'^\s*[-•]\s*', '• ', text, flags=re.MULTILINE)
+    text = re.sub(r'^\s*(\d+)\.\s*', r'\1. ', text, flags=re.MULTILINE)
+    return text
+
+def extract_topics(doc: Doc, num_topics: int = 5) -> List[Dict[str, Any]]:
+    """Extract main topics from the document using noun phrases and named entities."""
+    # Collect noun phrases and their frequencies
+    noun_phrases = []
+    for chunk in doc.noun_chunks:
+        if not all(token.is_stop for token in chunk):
+            noun_phrases.append(chunk.text.lower())
+    
+    # Collect named entities
+    entities = [ent.text.lower() for ent in doc.ents if ent.label_ in ['ORG', 'PRODUCT', 'GPE', 'EVENT', 'TECH']]
+    
+    # Combine and count frequencies
+    all_topics = noun_phrases + entities
+    topic_counter = Counter(all_topics)
+    
+    # Get the most common topics
+    top_topics = []
+    for topic, count in topic_counter.most_common(num_topics):
+        # Get the sentiment of the sentences containing this topic
+        topic_sentences = [sent.text for sent in doc.sents if topic in sent.text.lower()]
+        topic_sentiment = "neutral"
+        if topic_sentences:
+            sentiment = analyze_sentiment(" ".join(topic_sentences[:3]))  # Analyze first 3 sentences
+            topic_sentiment = sentiment["label"]
+        
+        top_topics.append({
+            "topic": topic,
+            "frequency": count,
+            "sentiment": topic_sentiment
+        })
+    
+    return top_topics
+
+def analyze_sentiment(text: str) -> Dict[str, Any]:
+    """Analyze the sentiment of the text."""
+    global sentiment_analyzer
+    if sentiment_analyzer is None:
+        sentiment_analyzer = get_sentiment_analyzer()
+    
+    result = sentiment_analyzer(text)[0]
+    return {
+        "label": result["label"].lower(),
+        "score": round(result["score"], 3)
+    }
+
+def extract_key_points(doc: Doc, top_n: int = 10) -> List[str]:
+    """Extract the most important points from a document."""
+    points = set()  # Use a set to avoid duplicates
+    
+    # Get named entities and noun phrases
+    for ent in doc.ents:
+        if ent.label_ in ['PERSON', 'ORG', 'GPE', 'PRODUCT', 'EVENT', 'TECH']:
+            clean_ent = clean_text(ent.text)
+            if len(clean_ent.split()) > 1:  # Only add multi-word entities
+                points.add(clean_ent)
+    
+    # Get important sentences
+    sentences = [sent for sent in doc.sents]
+    sentence_scores = []
+    
+    for sent in sentences:
+        score = 0
+        # Score based on named entities
+        score += len([ent for ent in sent.ents if ent.label_ in ['PERSON', 'ORG', 'GPE', 'PRODUCT', 'EVENT', 'TECH']])
+        # Score based on important verbs
+        score += len([token for token in sent if token.pos_ == 'VERB' and not token.is_stop])
+        # Score based on length (prefer medium-length sentences)
+        length = len(sent)
+        if 10 <= length <= 30:
+            score += 2
+        # Score based on position (prefer sentences at section starts)
+        if sent == sentences[0] or sent.text.strip().endswith(':'):
+            score += 3
+        # Score based on key terms
+        if any(term in sent.text.lower() for term in ['key', 'main', 'important', 'significant']):
+            score += 2
+        
+        clean_sent = clean_text(sent.text)
+        sentence_scores.append((clean_sent, score))
+    
+    # Sort by score and get top sentences
+    sorted_sentences = sorted(sentence_scores, key=lambda x: x[1], reverse=True)
+    
+    # Add top sentences to points, avoiding duplicates and fragments
+    for sent, _ in sorted_sentences[:top_n]:
+        if sent and len(sent.split()) > 3:  # Only add meaningful sentences
+            if not any(sent in p for p in points):  # Avoid adding if it's a subset of existing point
+                points.add(sent)
+    
+    # Convert set to list and sort by length (shorter points first)
+    return sorted(list(points), key=len)
+
+def extract_key_concepts(doc: Doc) -> List[Dict[str, Any]]:
+    """Extract key concepts and their definitions from the document."""
+    concepts = []
+    current_concept = None
+    current_definition = []
+    
+    # Common definition patterns
+    definition_patterns = [
+        r"([A-Za-z0-9\s]+)\s+(?:is|are)\s+(?:defined as|refers to|means|known as)\s+(.+)",
+        r"([A-Za-z0-9\s]+)\s+(?:is|are)\s+(?:a|an)\s+(.+)",
+        r"([A-Za-z0-9\s]+)\s+(?:is|are)\s+(.+)",
+        r"([A-Za-z0-9\s]+)\s*:\s*(.+)"
+    ]
+    
+    # First pass: Look for explicit definitions
+    for sent in doc.sents:
+        text = sent.text.strip()
+        for pattern in definition_patterns:
+            matches = re.finditer(pattern, text, re.IGNORECASE)
+            for match in matches:
+                concept = match.group(1).strip()
+                definition = match.group(2).strip()
+                # Clean up the concept and definition
+                concept = re.sub(r'^\d+\.\s*', '', concept)  # Remove numbering
+                definition = re.sub(r'\.$', '', definition)  # Remove trailing period
+                
+                if len(concept.split()) <= 5 and len(definition.split()) >= 3:  # Reasonable length checks
+                    concepts.append({
+                        "concept": concept,
+                        "definition": definition,
+                        "context": text
+                    })
+    
+    # Second pass: Look for implicit definitions in numbered lists
+    for sent in doc.sents:
+        text = sent.text.strip()
+        # Check for numbered list items
+        if re.match(r'^\d+\.\s+', text):
+            # Try to split into concept and definition
+            parts = re.split(r'\.\s+', text, 1)
+            if len(parts) == 2:
+                concept = parts[0].replace(r'^\d+\.\s*', '').strip()
+                definition = parts[1].strip()
+                if len(concept.split()) <= 5 and len(definition.split()) >= 3:
+                    concepts.append({
+                        "concept": concept,
+                        "definition": definition,
+                        "context": text
+                    })
+    
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_concepts = []
+    for concept in concepts:
+        key = (concept["concept"].lower(), concept["definition"].lower())
+        if key not in seen:
+            seen.add(key)
+            unique_concepts.append(concept)
+    
+    return unique_concepts
+
+def extract_formulas(doc: Doc) -> List[Dict[str, Any]]:
+    """Simple formula extraction focusing only on basic equations."""
+    formulas = []
+    for sent in doc.sents:
+        # Look for basic equations with = sign
+        matches = re.finditer(r'([A-Za-z0-9]+)\s*=\s*([A-Za-z0-9+\-*/^()]+)', sent.text)
+        for match in matches:
+            formula = match.group()
+            formulas.append({
+                "formula": formula,
+                "context": sent.text
+            })
+    return formulas
+
+def extract_practice_questions(doc: Doc) -> List[Dict[str, Any]]:
+    """Extract potential practice questions from the document."""
+    questions = []
+    question_indicators = ["what", "how", "why", "explain", "describe", "calculate"]
     
     for sent in doc.sents:
-        # Shorter sentences are generally easier to read
-        if len(sent) > 20:  # If sentence is long
-            # Try to break it at a conjunction or comma
-            sub_sentences = re.split(r'(?<=[.,;])\s+|(?<=\w)\s+(?:and|but|or|because|since)\s+(?=\w)', sent.text)
-            simplified_sentences.extend(sub_sentences)
+        # Check if sentence starts with a question indicator
+        if any(sent.text.lower().startswith(indicator) for indicator in question_indicators):
+            questions.append({
+                "question": sent.text,
+                "type": "conceptual" if any(ind in sent.text.lower() for ind in ["what", "how", "why"]) else "practical"
+            })
+    
+    return questions
+
+def format_bullet_points(points: List[str], indent: str = "") -> str:
+    """Format a list of points with proper indentation and bullet points."""
+    formatted_points = []
+    current_section = None
+    
+    for point in points:
+        # Clean the point text
+        clean_point = clean_text(point)
+        
+        # Handle section headers
+        if clean_point.endswith(':'):
+            current_section = clean_point
+            formatted_points.append(f"{indent}• {clean_point}")
+            continue
+        
+        # Handle numbered lists
+        if re.match(r'^\d+\.', clean_point):
+            number = re.match(r'^(\d+)\.', clean_point).group(1)
+            content = re.sub(r'^\d+\.\s*', '', clean_point)
+            if current_section:
+                formatted_points.append(f"{indent}  {number}. {content}")
+    else:
+                formatted_points.append(f"{indent}• {number}. {content}")
+            continue
+        
+        # Handle nested points
+        if ':' in clean_point and '\n' not in clean_point:
+            main_point, sub_points = clean_point.split(':', 1)
+            # Format main point
+            if current_section:
+                formatted_points.append(f"{indent}  • {main_point.strip()}:")
+            else:
+                formatted_points.append(f"{indent}• {main_point.strip()}:")
+            # Format sub-points with additional indentation
+            if sub_points.strip():
+                sub_items = [s.strip() for s in sub_points.split(',') if s.strip()]
+                for sub_item in sub_items:
+                    formatted_points.append(f"{indent}    - {sub_item}")
         else:
-            simplified_sentences.append(sent.text)
+            # Regular bullet point
+            if current_section:
+                formatted_points.append(f"{indent}  • {clean_point}")
+            else:
+                formatted_points.append(f"{indent}• {clean_point}")
     
-    # Rejoin with appropriate spacing
-    return " ".join(simplified_sentences)
+    return "\n".join(formatted_points)
 
-def enhance_text(text: str) -> str:
-    """Enhance text for higher reading levels (academic)."""
-    # This is a simplified implementation
-    # In a real application, you might use synonyms, restructuring, etc.
+def generate_concise_notes(text: str, mode: str = "brief") -> Dict[str, Any]:
+    """Generate concise notes from input text with additional analysis."""
+    global summarizer
+    if summarizer is None:
+        summarizer = get_summarizer()
     
-    # Add a formal introduction
-    introduction = "The following summarizes the key points from the provided content. "
-    
-    # Add a formal conclusion
-    conclusion = " The preceding summary encapsulates the essential information contained in the original text."
-    
-    return introduction + text + conclusion
-
-def extract_main_points(text: str, num_points: int = 5) -> List[str]:
-    """Extract the main points from a text."""
+    # Process text with spaCy
     doc = nlp(text)
     
-    # Score sentences based on keywords, position, and length
-    keywords = extract_keywords(doc)
-    keyword_set = {k.lower() for k in keywords}
+    # Calculate optimal summary length
+    max_length = calculate_optimal_length(text)
+    min_length = max(30, max_length // 2)
     
-    scored_sentences = []
-    for i, sent in enumerate(doc.sents):
-        # Skip very short sentences
-        if len(sent) < 5:
-            continue
-            
-        # Calculate score based on keywords
-        keyword_score = sum(1 for token in sent if token.text.lower() in keyword_set)
-        
-        # Position score (earlier sentences often more important)
-        position_score = 1.0 / (i + 1)
-        
-        # Length score (prefer medium length sentences)
-        length = len(sent)
-        length_score = 1.0 if 10 <= length <= 30 else 0.7
-        
-        total_score = (keyword_score * 0.5) + (position_score * 0.3) + (length_score * 0.2)
-        scored_sentences.append((sent.text, total_score))
+    # Extract study-specific elements
+    key_concepts = extract_key_concepts(doc)
+    formulas = extract_formulas(doc)  # Simplified formula extraction
+    practice_questions = extract_practice_questions(doc)
+    topics = extract_topics(doc)
     
-    # Sort by score and return top points
-    scored_sentences.sort(key=lambda x: x[1], reverse=True)
-    return [sent for sent, score in scored_sentences[:num_points]]
+    # Generate content based on mode
+    if mode == "brief":
+        # Generate a brief summary
+        summary = summarizer(
+            text, 
+            max_length=max_length, 
+            min_length=min_length, 
+            do_sample=False,
+            num_beams=4,
+            length_penalty=2.0
+        )[0]['summary_text']
+        
+        return {
+            "summary": clean_text(summary),
+            "key_concepts": key_concepts[:5],  # Top 5 concepts
+            "formulas": formulas,
+            "topics": topics,
+            "word_count": len(text.split()),
+            "success": True
+        }
+        
+    elif mode == "detailed":
+        # Generate a detailed summary with key points
+        summary = summarizer(
+            text, 
+            max_length=max_length, 
+            min_length=min_length, 
+            do_sample=False,
+            num_beams=4,
+            length_penalty=2.0
+        )[0]['summary_text']
+        
+        key_points = extract_key_points(doc)
+        formatted_points = format_bullet_points(key_points)
+        
+        return {
+            "summary": clean_text(summary),
+            "key_points": formatted_points,
+            "key_concepts": key_concepts,
+            "formulas": formulas,
+            "practice_questions": practice_questions,
+            "topics": topics,
+            "word_count": len(text.split()),
+            "success": True
+        }
+        
+    elif mode == "bullet_points":
+        # Generate bullet points only
+        key_points = extract_key_points(doc)
+        formatted_points = format_bullet_points(key_points)
+        
+        return {
+            "key_points": formatted_points,
+            "key_concepts": key_concepts,
+            "formulas": formulas,
+            "practice_questions": practice_questions,
+            "topics": topics,
+            "word_count": len(text.split()),
+            "success": True
+        }
+    
+    else:
+        return {"error": "Invalid mode selected"}
 
 def process_text(text: str, mode: str) -> str:
-    """Process text based on the specified mode."""
+    """Main processing function for text input."""
     try:
-        # Basic input validation
-        if not text or len(text.strip()) == 0:
-            return "Error: No text provided for processing."
+        # Validate input length
+        if len(text.split()) > 1000:
+            return json.dumps({
+                "error": "Input text exceeds 1000 words limit",
+                "word_count": len(text.split()),
+                "success": False
+            })
         
-        mode = mode.lower()
-        if not mode:
-            mode = "brief_3_3"  # Default mode
+        # Validate mode
+        valid_modes = ["brief", "detailed", "bullet_points"]
+        if mode not in valid_modes:
+            return json.dumps({
+                "error": f"Invalid mode. Must be one of: {', '.join(valid_modes)}",
+                "success": False
+            })
         
-        # Generate summary
-        result = generate_summary(text, mode)
+        # Generate notes based on mode
+        result = generate_concise_notes(text, mode)
+        result["word_count"] = len(text.split())
+        result["success"] = True
         
-        # Return the result
-        return result
+        # Ensure all required fields are present
+        required_fields = ["summary", "key_concepts", "formulas", "topics", "word_count", "success"]
+        for field in required_fields:
+            if field not in result:
+                result[field] = None if field != "success" else False
+        
+        return json.dumps(result, indent=2)
         
     except Exception as e:
-        error_msg = f"Error processing text: {str(e)}"
-        print(error_msg, file=sys.stderr)
-        traceback.print_exc(file=sys.stderr)
-        return f"An error occurred during processing: {str(e)}"
+        return json.dumps({
+            "error": str(e),
+            "traceback": traceback.format_exc(),
+            "success": False
+        })
 
 def main():
-    """Main function to handle command-line usage."""
-    if len(sys.argv) < 3:
-        print("Usage: python nlp_processor.py <mode> <text>", file=sys.stderr)
-        print("Modes: brief_X_Y, detailed_X_Y, bullets_X_Y", file=sys.stderr)
-        print("  X = summary length (1-10)", file=sys.stderr)
-        print("  Y = readability level (1-5)", file=sys.stderr)
-        return 1
+    if len(sys.argv) != 3:
+        print(json.dumps({
+            "error": "Invalid number of arguments. Expected: mode text",
+            "success": False
+        }))
+        return
     
     mode = sys.argv[1]
     text = sys.argv[2]
     
     result = process_text(text, mode)
     print(result)
-    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

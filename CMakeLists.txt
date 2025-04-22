@@ -1,85 +1,77 @@
-
 cmake_minimum_required(VERSION 3.10)
-project(TextMaster VERSION 1.0 LANGUAGES CXX)
+project(TextMaster)
 
+# Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
 
-# Find required Qt packages
-find_package(Qt5 COMPONENTS Core Widgets Multimedia MultimediaWidgets REQUIRED)
+# Find required packages
+find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+find_package(OpenGL REQUIRED)
 
-# Configure resources
-configure_file(resources.qrc ${CMAKE_CURRENT_BINARY_DIR}/resources.qrc COPYONLY)
-
-# Add resource files
-set(RESOURCE_FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/resources.qrc
+# Add GLFW
+include(FetchContent)
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.3.8
 )
+FetchContent_MakeAvailable(glfw)
+
+# Add Dear ImGui
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG v1.89.9
+)
+FetchContent_MakeAvailable(imgui)
 
 # Add source files
-set(SOURCE_FILES
+set(SOURCES
     src/main.cpp
-    src/mainwindow.cpp
 )
 
 # Add header files
-set(HEADER_FILES
-    src/mainwindow.h
+set(HEADERS
+    src/imgui.h
+    src/imgui_impl_glfw.h
+    src/imgui_impl_opengl3.h
 )
 
-# Add Python scripts to resources
-set(PYTHON_SCRIPTS
-    src/resources/nlp_processor.py
-)
-
-# Generate Python module directory
-add_custom_target(PyModules ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/resources
-    COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SCRIPTS} ${CMAKE_BINARY_DIR}/resources/
-)
-
-# Add embedded Python support
-find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
-include_directories(${Python3_INCLUDE_DIRS})
-
-# Add executable
-add_executable(TextMaster ${SOURCE_FILES} ${HEADER_FILES} ${RESOURCE_FILES})
+# Create executable
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
 # Link libraries
-target_link_libraries(TextMaster PRIVATE 
-    Qt5::Core 
-    Qt5::Widgets 
-    Qt5::Multimedia 
-    Qt5::MultimediaWidgets
-    ${Python3_LIBRARIES}
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    glfw
+    imgui
+    OpenGL::GL
+    Python3::Python
 )
 
-# Set include directories
-target_include_directories(TextMaster PRIVATE 
+# Include directories
+target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${Python3_INCLUDE_DIRS}
 )
 
-# Install target
-install(TARGETS TextMaster DESTINATION bin)
-install(FILES ${PYTHON_SCRIPTS} DESTINATION resources)
+# Copy Python script to build directory
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/resources/nlp_processor.py
+    ${CMAKE_CURRENT_BINARY_DIR}/nlp_processor.py
+    COPYONLY
+)
 
-# Set Windows-specific properties
+# Windows-specific settings
 if(WIN32)
-    # Set application icon
-    set_target_properties(TextMaster PROPERTIES WIN32_EXECUTABLE TRUE)
+    # Set Windows subsystem
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        WIN32_EXECUTABLE TRUE
+    )
     
-    # PyInstaller command for creating Windows executable
-    add_custom_command(TARGET TextMaster POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E echo "Creating Windows executable package"
-        COMMAND ${Python3_EXECUTABLE} -m pip install pyinstaller
-        COMMAND ${Python3_EXECUTABLE} -m PyInstaller --onefile --windowed --name TextMaster
-                --add-data "${CMAKE_BINARY_DIR}/resources/nlp_processor.py;resources/"
-                --add-binary "${CMAKE_BINARY_DIR}/TextMaster.exe;."
-                "${CMAKE_SOURCE_DIR}/windows_package.py"
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    # Add Windows-specific libraries
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        gdi32
+        shell32
     )
 endif()
