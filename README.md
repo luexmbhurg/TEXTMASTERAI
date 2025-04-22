@@ -1,73 +1,76 @@
-# Welcome to your Lovable project
 
-## Project info
+# TextMaster
 
-**URL**: https://lovable.dev/projects/b19ce481-5c24-4fd5-b803-a4dcf721a3d1
+TextMaster is an advanced AI-powered application that converts audio, text, and images into concise, well-organized notes. Inspired by tools like Algor Education and HyperWrite's Smart Notes Creator, TextMaster provides powerful summarization capabilities in a desktop application.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Multi-source Input**: Process text, audio recordings, and images
+- **Advanced AI Summarization**: Generate concise notes using state-of-the-art NLP
+- **Customizable Output**: Choose between brief summaries, detailed notes, or bullet points
+- **Adjustable Parameters**: Control summary length and readability level
+- **User-friendly Interface**: Clean and intuitive Qt-based UI
 
-**Use Lovable**
+## Technical Architecture
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/b19ce481-5c24-4fd5-b803-a4dcf721a3d1) and start prompting.
+- **C++ Core**: Performance-optimized main engine
+- **Python NLP Backend**: Powerful text processing using spaCy and Hugging Face Transformers
+- **Qt UI**: Professional desktop experience
+- **Windows Compatibility**: Packaged as a standalone .exe for Windows
 
-Changes made via Lovable will be committed automatically to this repo.
+## Building from Source
 
-**Use your preferred IDE**
+### Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- CMake (3.10 or higher)
+- Qt 5 (with Core, Widgets, Multimedia, and MultimediaWidgets modules)
+- Python 3 (with development headers)
+- C++ compiler supporting C++17
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Build Instructions
 
-Follow these steps:
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/textmaster.git
+   cd textmaster
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+2. Create a build directory:
+   ```
+   mkdir build
+   cd build
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+3. Configure with CMake:
+   ```
+   cmake ..
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+4. Build the project:
+   ```
+   cmake --build .
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+5. For Windows .exe packaging:
+   ```
+   cmake --build . --target package
+   ```
 
-**Edit a file directly in GitHub**
+## Usage
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Launch the application
+2. Choose your input method (text, audio, or image)
+3. Import or record your content
+4. Adjust summary options as desired
+5. Click "Generate Notes" to create your summary
+6. Save or copy the results
 
-**Use GitHub Codespaces**
+## License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## What technologies are used for this project?
+## Acknowledgments
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/b19ce481-5c24-4fd5-b803-a4dcf721a3d1) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- [spaCy](https://spacy.io/) for natural language processing
+- [Hugging Face Transformers](https://huggingface.co/transformers/) for AI models
+- [Qt](https://www.qt.io/) for the user interface framework

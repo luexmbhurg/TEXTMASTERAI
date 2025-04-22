@@ -1,0 +1,8 @@
+
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>resources/nlp_processor.py</file>
+        <file>resources/app_icon.ico</file>
+    </qresource>
+</RCC>
