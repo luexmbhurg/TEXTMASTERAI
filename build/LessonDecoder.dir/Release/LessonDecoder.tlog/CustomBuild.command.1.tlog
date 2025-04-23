@@ -1,0 +1,24 @@
+^C:\PROJECTS\AUDIO-TO-BRIEF-NOTES\BUILD\CMAKEFILES\348FE065FE848EB3BEC45E5EA39FF279\QRC_RESOURCES.CPP.RULE
+setlocal
+cd C:\Projects\audio-to-brief-notes\build
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E cmake_autorcc C:/Projects/audio-to-brief-notes/build/CMakeFiles/LessonDecoder_autogen.dir/AutoRcc_resources_EWIEGA46WW_Info.json Release
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^C:\PROJECTS\AUDIO-TO-BRIEF-NOTES\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Projects/audio-to-brief-notes -BC:/Projects/audio-to-brief-notes/build --check-stamp-file C:/Projects/audio-to-brief-notes/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

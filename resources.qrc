@@ -1,8 +1,17 @@
-
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/">
+        <file>icons/menu.png</file>
+        <file>icons/profile.png</file>
+        <file>icons/loading.png</file>
+        <file>icons/download.png</file>
+        <file>icons/copy.png</file>
+        <file>icons/new_document.png</file>
+        <file>icons/open_file.png</file>
+        <file>icons/save.png</file>
+        <file>icons/export.png</file>
+        <file>icons/settings.png</file>
+        <file>icons/help.png</file>
         <file>resources/nlp_processor.py</file>
-        <file>resources/app_icon.ico</file>
     </qresource>
 </RCC>

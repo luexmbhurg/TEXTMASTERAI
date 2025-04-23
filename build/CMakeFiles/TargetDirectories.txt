@@ -1,0 +1,3 @@
+C:/Projects/audio-to-brief-notes/build/CMakeFiles/LessonDecoder.dir
+C:/Projects/audio-to-brief-notes/build/CMakeFiles/ALL_BUILD.dir
+C:/Projects/audio-to-brief-notes/build/CMakeFiles/ZERO_CHECK.dir

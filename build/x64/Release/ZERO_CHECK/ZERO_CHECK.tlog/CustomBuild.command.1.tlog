@@ -1,0 +1,10 @@
+^C:\PROJECTS\AUDIO-TO-BRIEF-NOTES\BUILD\CMAKEFILES\A592CF4B82C5A2F082DF57D1E8A359C0\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Projects/audio-to-brief-notes -BC:/Projects/audio-to-brief-notes/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Projects/audio-to-brief-notes/build/LessonDecoder.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

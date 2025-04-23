@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Projects\audio-to-brief-notes\build\CMakeFiles\a592cf4b82c5a2f082df57d1e8a359c0\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{19B96D2D-92C7-39EB-9EC8-6598B352EA82}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

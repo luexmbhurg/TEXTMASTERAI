@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Projects/audio-to-brief-notes/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
