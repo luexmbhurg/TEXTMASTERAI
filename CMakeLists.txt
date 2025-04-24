@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find required packages
 find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+find_package(Qt6 COMPONENTS Core Gui Widgets Concurrent REQUIRED)
 
 # Enable automoc for Qt
 set(CMAKE_AUTOMOC ON)
@@ -32,7 +32,9 @@ qt_add_executable(LessonDecoder
 # Link libraries
 target_link_libraries(LessonDecoder PRIVATE
     Qt6::Core
+    Qt6::Gui
     Qt6::Widgets
+    Qt6::Concurrent
     Python3::Python
 )
 
@@ -40,6 +42,7 @@ target_link_libraries(LessonDecoder PRIVATE
 target_include_directories(LessonDecoder PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${Python3_INCLUDE_DIRS}
+    ${Qt6_DIR}/../../include
 )
 
 # Copy Python script to build directory

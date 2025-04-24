@@ -13,6 +13,9 @@
 #include <QDebug>
 #include <QProcess>
 #include <QCoreApplication>
+#include <QFuture>
+#include <QFutureWatcher>
+#include <QJsonDocument>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     setupUI();
@@ -365,36 +368,72 @@ void MainWindow::onLetsGoClicked() {
     
     showLoadingPage();
     QString inputText = textInput->toPlainText();
+    qDebug() << "Processing text of length:" << inputText.length();
     
-    // Process the text using Python NLP
-    QString result = processPythonNLP(inputText);
+    // Disable UI elements during processing
+    letsGoButton->setEnabled(false);
+    importButton->setEnabled(false);
+    textInput->setEnabled(false);
     
-    if (result.startsWith("Error:")) {
-        // Use a scrollable, resizable dialog for long error messages
-        QDialog *errorDialog = new QDialog(this);
-        errorDialog->setWindowTitle("Error");
-        errorDialog->resize(600, 400);
-        QVBoxLayout *layout = new QVBoxLayout(errorDialog);
-        QTextEdit *errorText = new QTextEdit(errorDialog);
-        errorText->setReadOnly(true);
-        errorText->setPlainText(result);
-        layout->addWidget(errorText);
-        QPushButton *closeButton = new QPushButton("Close", errorDialog);
-        connect(closeButton, &QPushButton::clicked, errorDialog, &QDialog::accept);
-        layout->addWidget(closeButton, 0, Qt::AlignRight);
-        errorDialog->setLayout(layout);
-        errorDialog->exec();
-        return;
-    }
+    // Start async processing
+    QFuture<QString> future = processPythonNLPAsync(inputText);
     
-    // Display the results
-    resultsText->setPlainText(result);
+    // Create a watcher to handle completion
+    QFutureWatcher<QString>* watcher = new QFutureWatcher<QString>(this);
+    connect(watcher, &QFutureWatcher<QString>::finished, this, [this, watcher, inputText]() {
+        QString result = watcher->result();
+        qDebug() << "Received result:" << result;
+        
+        // Re-enable UI elements
+        letsGoButton->setEnabled(true);
+        importButton->setEnabled(true);
+        textInput->setEnabled(true);
+        
+        if (result.startsWith("Error:")) {
+            qDebug() << "Error in processing:" << result;
+            // Use a scrollable, resizable dialog for long error messages
+            QDialog *errorDialog = new QDialog(this);
+            errorDialog->setWindowTitle("Error");
+            errorDialog->resize(600, 400);
+            QVBoxLayout *layout = new QVBoxLayout(errorDialog);
+            QTextEdit *errorText = new QTextEdit(errorDialog);
+            errorText->setReadOnly(true);
+            errorText->setPlainText(result);
+            layout->addWidget(errorText);
+            QPushButton *closeButton = new QPushButton("Close", errorDialog);
+            connect(closeButton, &QPushButton::clicked, errorDialog, &QDialog::accept);
+            layout->addWidget(closeButton, 0, Qt::AlignRight);
+            errorDialog->setLayout(layout);
+            errorDialog->exec();
+            
+            showHomePage();
+            return;
+        }
+        
+        // Try to parse the JSON result
+        QJsonDocument doc = QJsonDocument::fromJson(result.toUtf8());
+        if (doc.isNull()) {
+            qDebug() << "Invalid JSON result:" << result;
+            QMessageBox::warning(this, "Error", "Invalid response from processing service");
+            showHomePage();
+            return;
+        }
+        
+        // Display the results
+        resultsText->setPlainText(result);
+        
+        // Add to history
+        addToHistory(inputText, result);
+        
+        // Show results page
+        showResultsPage();
+        
+        // Clean up watcher
+        watcher->deleteLater();
+    });
     
-    // Add to history
-    addToHistory(inputText, result);
-    
-    // Show results page
-    stackedWidget->setCurrentWidget(resultsPage);
+    // Start watching the future
+    watcher->setFuture(future);
 }
 
 void MainWindow::onGenerateQuizClicked() {
@@ -413,12 +452,12 @@ void MainWindow::onDownloadClicked() {
     
     if (!fileName.isEmpty()) {
         QFile file(fileName);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QTextStream stream(&file);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream stream(&file);
             stream << resultsText->toPlainText();
-        file.close();
+            file.close();
             statusBar->showMessage("Results saved successfully");
-    } else {
+        } else {
             QMessageBox::warning(this, "Error", "Could not save file: " + file.errorString());
         }
     }
@@ -635,18 +674,28 @@ void MainWindow::showHistoryPage() {
 // Button actions
 void MainWindow::onImportFileClicked() {
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Open Text File"), "",
-        tr("Text Files (*.txt);;All Files (*)"));
-
+        "Import Text File", "", "Text Files (*.txt);;All Files (*)");
+    
     if (!fileName.isEmpty()) {
         QFile file(fileName);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream in(&file);
-            textInput->setText(in.readAll());
+            QString text = in.readAll();
             file.close();
+            
+            // Validate text length
+            QStringList words = text.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts);
+            if (words.count() > 1000) {
+                QMessageBox::warning(this, "Warning",
+                    "The imported file contains more than 1000 words. Only the first 1000 words will be processed.");
+                text = words.mid(0, 1000).join(" ");
+            }
+            
+            textInput->setPlainText(text);
+            updateWordCount();
         } else {
-            QMessageBox::warning(this, tr("Error"),
-                tr("Could not open file: %1").arg(fileName));
+            QMessageBox::warning(this, "Error",
+                "Could not open file: " + file.errorString());
         }
     }
 }

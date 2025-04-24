@@ -8,39 +8,63 @@ import json
 import re
 import tempfile
 import warnings
-from typing import List, Dict, Any, Union, Optional
+from typing import List, Dict, Any, Union, Optional, Tuple
 from collections import Counter
 
 # Suppress specific warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="transformers")
 
+# Add debug logging
+def debug_log(message: str) -> None:
+    print(f"DEBUG: {message}", file=sys.stderr)
+
 try:
     import spacy
     from spacy.lang.en import English
     from spacy.tokens import Doc
     import numpy as np
     from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
-except ImportError:
+    debug_log("Successfully imported required libraries")
+except ImportError as e:
+    debug_log(f"Import error: {str(e)}")
     # If running as standalone, attempt to install dependencies
     import subprocess
     print("Installing required dependencies...", file=sys.stderr)
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "spacy", "numpy", "transformers", "torch"])
-    subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
-    
-    import spacy
-    from spacy.lang.en import English
-    from spacy.tokens import Doc
-    import numpy as np
-    from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "spacy", "numpy", "transformers", "torch"])
+        subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+        debug_log("Successfully installed dependencies")
+        
+        import spacy
+        from spacy.lang.en import English
+        from spacy.tokens import Doc
+        import numpy as np
+        from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
+    except Exception as e:
+        debug_log(f"Failed to install dependencies: {str(e)}")
+        print(json.dumps({"error": f"Failed to install dependencies: {str(e)}"}))
+        sys.exit(1)
+
+# Constants
+MAX_CHUNK_SIZE = 5000  # Maximum characters per chunk
+CHUNK_OVERLAP = 500    # Overlap between chunks
 
 # Load spaCy model
 try:
     nlp = spacy.load("en_core_web_sm")
-except OSError:
+    debug_log("Successfully loaded spaCy model")
+except OSError as e:
+    debug_log(f"Failed to load spaCy model: {str(e)}")
     # Download the model if not available
     import subprocess
-    subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
-    nlp = spacy.load("en_core_web_sm")
+    try:
+        subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+        nlp = spacy.load("en_core_web_sm")
+        debug_log("Successfully downloaded and loaded spaCy model")
+    except Exception as e:
+        debug_log(f"Failed to download spaCy model: {str(e)}")
+        print(json.dumps({"error": f"Failed to download spaCy model: {str(e)}"}))
+        sys.exit(1)
 
 # Initialize models
 summarizer = None
@@ -384,79 +408,153 @@ def generate_concise_notes(text: str, mode: str = "brief") -> Dict[str, Any]:
     else:
         return {"error": "Invalid mode selected"}
 
-def process_text(input_text, mode):
+def split_into_chunks(text: str, max_size: int = MAX_CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> List[str]:
+    """Split text into overlapping chunks."""
+    if len(text) <= max_size:
+        return [text]
+    
+    chunks = []
+    start = 0
+    while start < len(text):
+        end = min(start + max_size, len(text))
+        # Try to find a good breaking point (sentence end)
+        if end < len(text):
+            # Look for sentence end within last 200 characters
+            sentence_end = text.rfind('.', end - 200, end)
+            if sentence_end != -1:
+                end = sentence_end + 1
+        
+        chunks.append(text[start:end])
+        start = end - overlap
+    
+    return chunks
+
+def process_chunk(chunk: str, mode: str) -> Dict[str, Any]:
+    """Process a single chunk of text."""
     try:
-        # Process text with spaCy
-        doc = nlp(input_text)
-        
-        # Extract key concepts (named entities)
-        key_concepts = []
-        for ent in doc.ents:
-            key_concepts.append({
-                "concept": ent.text,
-                "definition": f"{ent.label_}: {spacy.explain(ent.label_)}"
-            })
-        
-        # Get topics (noun chunks)
-        topics = []
-        noun_chunks = list(doc.noun_chunks)
-        for chunk in set([chunk.text.lower() for chunk in noun_chunks]):
-            frequency = sum(1 for nc in noun_chunks if nc.text.lower() == chunk)
-            topics.append({
-                "topic": chunk,
-                "frequency": frequency
-            })
-        
-        # Sort topics by frequency
-        topics.sort(key=lambda x: x["frequency"], reverse=True)
-        topics = topics[:10]  # Keep top 10 topics
-        
-        # Generate summary based on mode
-        if mode == "brief":
-            max_length = 130
-            min_length = 30
-        elif mode == "bullet_points":
-            max_length = 150
-            min_length = 40
-        else:  # detailed
-            max_length = 250
-            min_length = 50
-        
-        # Generate summary
-        summary = summarizer(input_text, 
-                           max_length=max_length,
-                           min_length=min_length,
-                           do_sample=False)[0]['summary_text']
-        
-        # Prepare response
-        response = {
-            "success": True,
-            "summary": summary,
-            "key_concepts": key_concepts,
-            "topics": topics
-        }
-        
-        return json.dumps(response)
-        
+        doc = nlp(chunk)
+        return generate_concise_notes(chunk, mode)
     except Exception as e:
-        return json.dumps({
-            "success": False,
-            "error": str(e)
-        })
+        return {
+            "error": str(e),
+            "chunk": chunk[:100] + "..." if len(chunk) > 100 else chunk
+        }
+
+def merge_results(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Merge results from multiple chunks."""
+    merged = {
+        "summary": "",
+        "key_points": [],
+        "topics": [],
+        "concepts": [],
+        "formulas": [],
+        "practice_questions": []
+    }
+    
+    # Track seen items to avoid duplicates
+    seen_points = set()
+    seen_concepts = set()
+    seen_formulas = set()
+    seen_questions = set()
+    
+    for result in results:
+        if "error" in result:
+            continue
+            
+        # Merge summaries
+        if "summary" in result:
+            merged["summary"] += " " + result["summary"]
+        
+        # Merge key points
+        if "key_points" in result:
+            for point in result["key_points"]:
+                if point not in seen_points:
+                    seen_points.add(point)
+                    merged["key_points"].append(point)
+        
+        # Merge topics
+        if "topics" in result:
+            merged["topics"].extend(result["topics"])
+        
+        # Merge concepts
+        if "concepts" in result:
+            for concept in result["concepts"]:
+                key = (concept["concept"].lower(), concept["definition"].lower())
+                if key not in seen_concepts:
+                    seen_concepts.add(key)
+                    merged["concepts"].append(concept)
+        
+        # Merge formulas
+        if "formulas" in result:
+            for formula in result["formulas"]:
+                if formula["formula"] not in seen_formulas:
+                    seen_formulas.add(formula["formula"])
+                    merged["formulas"].append(formula)
+        
+        # Merge practice questions
+        if "practice_questions" in result:
+            for question in result["practice_questions"]:
+                if question["question"] not in seen_questions:
+                    seen_questions.add(question["question"])
+                    merged["practice_questions"].append(question)
+    
+    # Clean up merged results
+    merged["summary"] = clean_text(merged["summary"].strip())
+    merged["key_points"] = list(seen_points)
+    merged["topics"] = list({topic["topic"]: topic for topic in merged["topics"]}.values())
+    
+    return merged
+
+def process_text(input_text: str, mode: str = "brief") -> Dict[str, Any]:
+    """Main text processing function with chunking support."""
+    try:
+        # Clean input text
+        input_text = clean_text(input_text)
+        
+        # Split into chunks if necessary
+        if len(input_text) > MAX_CHUNK_SIZE:
+            chunks = split_into_chunks(input_text)
+            results = [process_chunk(chunk, mode) for chunk in chunks]
+            return merge_results(results)
+        else:
+            return process_chunk(input_text, mode)
+    except Exception as e:
+        return {
+            "error": f"Error processing text: {str(e)}",
+            "traceback": traceback.format_exc()
+        }
 
 def main():
-    if len(sys.argv) != 3:
+    """Main entry point for the script."""
+    try:
+        debug_log("Starting main process")
+        # Read input from stdin
+        input_text = sys.stdin.read()
+        debug_log(f"Received input text of length: {len(input_text)}")
+        
+        if not input_text:
+            debug_log("No input text provided")
+            print(json.dumps({"error": "No input text provided"}))
+            sys.exit(1)
+        
+        # Process the text
+        debug_log("Starting text processing")
+        result = process_text(input_text)
+        debug_log("Text processing completed")
+        
+        # Output the result
+        debug_log("Sending result back")
+        print(json.dumps(result))
+        debug_log("Process completed successfully")
+        
+    except Exception as e:
+        debug_log(f"Error in main process: {str(e)}")
+        debug_log(f"Traceback: {traceback.format_exc()}")
         print(json.dumps({
-            "error": "Invalid number of arguments. Expected: mode text",
-            "success": False
+            "error": str(e),
+            "traceback": traceback.format_exc()
         }))
-        return
-    
-    mode = sys.argv[1]
-    text = sys.argv[2]
-    
-    result = process_text(text, mode)
-    print(result)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

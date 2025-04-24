@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>HomePage</class>
+ <widget class="QWidget" name="HomePage">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="decoderLabel">
+     <property name="text">
+      <string>LESSON DECODER</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="inputFrame">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QPushButton" name="importButton">
+        <property name="text">
+         <string>Import File</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="textLayout">
+        <item>
+         <widget class="QTextEdit" name="textInput">
+          <property name="placeholderText">
+           <string>Enter or paste your text here...</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="wordCountLabel">
+          <property name="text">
+           <string>Words: 0/1000</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QPushButton" name="letsGoButton">
+        <property name="text">
+         <string>LET'S GO!</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui> 

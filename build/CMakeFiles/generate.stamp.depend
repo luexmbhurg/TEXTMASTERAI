@@ -129,6 +129,15 @@ C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/QtPublicTargetHelpers.cmake
 C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/QtPublicTestHelpers.cmake
 C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/QtPublicToolHelpers.cmake
 C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/QtPublicWalkLibsHelpers.cmake
+C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Concurrent/Qt6ConcurrentAdditionalTargetInfo.cmake
+C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Concurrent/Qt6ConcurrentConfig.cmake
+C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Concurrent/Qt6ConcurrentConfigVersion.cmake
+C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Concurrent/Qt6ConcurrentConfigVersionImpl.cmake
+C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Concurrent/Qt6ConcurrentDependencies.cmake
+C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Concurrent/Qt6ConcurrentTargets-debug.cmake
+C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Concurrent/Qt6ConcurrentTargets-relwithdebinfo.cmake
+C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Concurrent/Qt6ConcurrentTargets.cmake
+C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Concurrent/Qt6ConcurrentVersionlessTargets.cmake
 C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Core/Qt6CoreAdditionalTargetInfo.cmake
 C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Core/Qt6CoreConfig.cmake
 C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Core/Qt6CoreConfigExtras.cmake
