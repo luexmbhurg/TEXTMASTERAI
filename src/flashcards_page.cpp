@@ -99,25 +99,48 @@ void FlashcardsPage::updateCardDisplay()
 
 void FlashcardsPage::onRevealClicked()
 {
-    definitionLabel->setVisible(!definitionLabel->isVisible());
-    revealButton->setText(definitionLabel->isVisible() ? "Hide" : "Reveal");
-    emit revealDefinition();
+    if (definitionLabel) {
+        definitionLabel->setVisible(!definitionLabel->isVisible());
+        revealButton->setText(definitionLabel->isVisible() ? "Hide Definition" : "Show Definition");
+    }
 }
 
 void FlashcardsPage::onPrevClicked()
 {
-    if (currentIndex > 0) {
-        currentIndex--;
+    if (!flashcards.isEmpty()) {
+        currentIndex = (currentIndex - 1 + flashcards.size()) % flashcards.size();
         updateCardDisplay();
-        emit prevCard();
     }
 }
 
 void FlashcardsPage::onNextClicked()
 {
-    if (currentIndex < flashcards.size() - 1) {
-        currentIndex++;
+    if (!flashcards.isEmpty()) {
+        currentIndex = (currentIndex + 1) % flashcards.size();
         updateCardDisplay();
-        emit nextCard();
+    }
+}
+
+void FlashcardsPage::revealDefinition()
+{
+    if (definitionLabel) {
+        definitionLabel->setVisible(!definitionLabel->isVisible());
+        revealButton->setText(definitionLabel->isVisible() ? "Hide Definition" : "Show Definition");
+    }
+}
+
+void FlashcardsPage::prevCard()
+{
+    if (!flashcards.isEmpty()) {
+        currentIndex = (currentIndex - 1 + flashcards.size()) % flashcards.size();
+        updateCardDisplay();
+    }
+}
+
+void FlashcardsPage::nextCard()
+{
+    if (!flashcards.isEmpty()) {
+        currentIndex = (currentIndex + 1) % flashcards.size();
+        updateCardDisplay();
     }
 } 

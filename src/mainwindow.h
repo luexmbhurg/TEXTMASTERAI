@@ -147,6 +147,12 @@ private:
     QLabel *resultsLabel;
     QTextEdit *resultsText;
 
+    // State variables
+    int currentFlashcardIndex;
+    int currentQuizQuestionIndex;
+    int quizScore;
+    int totalQuestions;
+
     // Stylesheet strings
     QString getMainStyleSheet();
     QString getHeaderStyleSheet();

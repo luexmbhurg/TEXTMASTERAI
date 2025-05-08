@@ -17,6 +17,7 @@ public:
 
     void setQuestions(const QVector<QPair<QString, QString>>& questions);
     void clearQuestions();
+    QString getAnswer() const;
 
 signals:
     void backToHome();

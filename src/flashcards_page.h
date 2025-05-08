@@ -16,12 +16,12 @@ public:
 
     void setFlashcards(const QVector<QPair<QString, QString>>& cards);
     void clearFlashcards();
+    void revealDefinition();
+    void prevCard();
+    void nextCard();
 
 signals:
     void backToHome();
-    void prevCard();
-    void nextCard();
-    void revealDefinition();
 
 private slots:
     void onRevealClicked();

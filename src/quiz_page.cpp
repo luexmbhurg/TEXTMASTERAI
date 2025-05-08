@@ -131,4 +131,9 @@ void QuizPage::onSubmitClicked()
     }
     
     emit answerSubmitted(answer);
+}
+
+QString QuizPage::getAnswer() const
+{
+    return answerInput->text();
 } 

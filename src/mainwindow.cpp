@@ -16,24 +16,28 @@
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFrame>
 #include "ui_mainwindow.h"
-#include "flashcardspage.h"
-#include "quizpage.h"
-#include "enumerationspage.h"
+#include "flashcards_page.h"
+#include "quiz_page.h"
+#include "enumerations_page.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , llmProcessor(new LLMProcessor(this))
-    , currentFlashcardIndex(0)
-    , currentQuizQuestionIndex(0)
-    , quizScore(0)
-    , totalQuestions(0)
 {
     ui->setupUi(this);
+    
+    // Initialize state variables
+    currentFlashcardIndex = 0;
+    currentQuizQuestionIndex = 0;
+    quizScore = 0;
+    totalQuestions = 0;
     
     // Initialize UI components
     setupUI();
@@ -414,88 +418,154 @@ void MainWindow::onLLMError(const QString& error)
 
 void MainWindow::processFlashcardsResponse(const QString& response)
 {
-    try {
-        QVector<QPair<QString, QString>> cards;
+    QJsonDocument doc = QJsonDocument::fromJson(response.toUtf8());
+    if (doc.isArray()) {
+        QJsonArray array = doc.array();
+        QVector<QPair<QString, QString>> flashcards;
         
-        // Split into individual flashcards
-        QStringList cardBlocks = response.split("\n\n", Qt::SkipEmptyParts);
-        
-        for (const QString& block : cardBlocks) {
-            QStringList lines = block.split("\n", Qt::SkipEmptyParts);
-            if (lines.size() >= 2) {
-                QString term = lines[0];
-                QString definition = lines[1];
-                
-                // Remove any "Q:" or "A:" prefixes if present
-                QString cleanTerm = term;
-                cleanTerm.replace(QRegularExpression("^[QA]:\\s*"), "");
-                
-                QString cleanDefinition = definition;
-                cleanDefinition.replace(QRegularExpression("^[QA]:\\s*"), "");
-                
-                cards.append(qMakePair(cleanTerm.trimmed(), cleanDefinition.trimmed()));
+        for (const QJsonValue& value : array) {
+            if (value.isObject()) {
+                QJsonObject obj = value.toObject();
+                QString term = obj["term"].toString();
+                QString definition = obj["definition"].toString();
+                flashcards.append(qMakePair(term, definition));
             }
         }
         
-        flashcardsPage->setFlashcards(cards);
-    } catch (const std::exception& e) {
-        QMessageBox::critical(this, "Error", QString("Error processing flashcards: %1").arg(e.what()));
-        statusBar->showMessage("Error processing flashcards");
+        flashcardsPage->setFlashcards(flashcards);
+        stackedWidget->setCurrentWidget(flashcardsPage);
     }
 }
 
 void MainWindow::processQuizResponse(const QString& response)
 {
-    try {
+    QJsonDocument doc = QJsonDocument::fromJson(response.toUtf8());
+    if (doc.isArray()) {
+        QJsonArray array = doc.array();
         QVector<QPair<QString, QString>> questions;
         
-        // Split into individual questions
-        QStringList questionBlocks = response.split("\n\n", Qt::SkipEmptyParts);
-        
-        for (const QString& block : questionBlocks) {
-            QStringList lines = block.split("\n", Qt::SkipEmptyParts);
-            if (lines.size() >= 2) {
-                QString question = lines[0];
-                QString answer = lines[1];
-                
-                // Remove any "Q:" or "A:" prefixes if present
-                QString cleanQuestion = question;
-                cleanQuestion.replace(QRegularExpression("^[QA]:\\s*"), "");
-                
-                QString cleanAnswer = answer;
-                cleanAnswer.replace(QRegularExpression("^[QA]:\\s*"), "");
-                
-                questions.append(qMakePair(cleanQuestion.trimmed(), cleanAnswer.trimmed()));
+        for (const QJsonValue& value : array) {
+            if (value.isObject()) {
+                QJsonObject obj = value.toObject();
+                QString question = obj["question"].toString();
+                QString answer = obj["answer"].toString();
+                questions.append(qMakePair(question, answer));
             }
         }
         
         quizPage->setQuestions(questions);
-    } catch (const std::exception& e) {
-        QMessageBox::critical(this, "Error", QString("Error processing quiz: %1").arg(e.what()));
-        statusBar->showMessage("Error processing quiz");
+        stackedWidget->setCurrentWidget(quizPage);
     }
 }
 
 void MainWindow::processEnumerationsResponse(const QString& response)
 {
-    try {
+    QJsonDocument doc = QJsonDocument::fromJson(response.toUtf8());
+    if (doc.isArray()) {
+        QJsonArray array = doc.array();
         QStringList items;
         
-        // Split into individual items
-        QStringList lines = response.split("\n", Qt::SkipEmptyParts);
-        
-        for (const QString& line : lines) {
-            // Remove any numbering or bullet points
-            QString cleanLine = line;
-            cleanLine.replace(QRegularExpression("^[0-9]+[.)]\\s*|^[-*]\\s*"), "");
-            items.append(cleanLine.trimmed());
+        for (const QJsonValue& value : array) {
+            if (value.isString()) {
+                items.append(value.toString());
+            }
         }
         
         enumerationsPage->setEnumerations(items);
-    } catch (const std::exception& e) {
-        QMessageBox::critical(this, "Error", QString("Error processing enumerations: %1").arg(e.what()));
-        statusBar->showMessage("Error processing enumerations");
+        stackedWidget->setCurrentWidget(enumerationsPage);
     }
+}
+
+void MainWindow::setupStyles()
+{
+    setStyleSheet(getMainStyleSheet());
+    if (headerWidget) {
+        headerWidget->setStyleSheet(getHeaderStyleSheet());
+    }
+    if (homePage) {
+        homePage->setStyleSheet(getHomePageStyleSheet());
+    }
+    if (resultsPage) {
+        resultsPage->setStyleSheet(getResultsPageStyleSheet());
+    }
+    if (historyPage) {
+        historyPage->setStyleSheet(getHistoryPageStyleSheet());
+    }
+}
+
+void MainWindow::updateWordCount()
+{
+    QString text = homePage->getInputText();
+    int wordCount = text.split(QRegularExpression("\\s+"), Qt::SkipEmptyParts).count();
+    statusBar->showMessage(QString("Word count: %1").arg(wordCount));
+}
+
+void MainWindow::onRevealDefinitionClicked()
+{
+    if (flashcardsPage) {
+        flashcardsPage->revealDefinition();
+    }
+}
+
+void MainWindow::onPrevFlashcardClicked()
+{
+    if (flashcardsPage) {
+        flashcardsPage->prevCard();
+    }
+}
+
+void MainWindow::onNextFlashcardClicked()
+{
+    if (flashcardsPage) {
+        flashcardsPage->nextCard();
+    }
+}
+
+void MainWindow::onQuizSubmitClicked()
+{
+    if (quizPage) {
+        quizPage->answerSubmitted(quizPage->getAnswer());
+    }
+}
+
+void MainWindow::onGenerateQuizClicked()
+{
+    if (!validateInputText()) {
+        return;
+    }
+    
+    QString inputText = homePage->getInputText();
+    statusBar->showMessage("Generating quiz...");
+    
+    QFuture<QString> future = llmProcessor->generateQuizAsync(inputText);
+    QFutureWatcher<QString> *watcher = new QFutureWatcher<QString>(this);
+    connect(watcher, &QFutureWatcher<QString>::finished, [this, watcher, inputText]() {
+        QString result = watcher->result();
+        onQuizGenerated(result);
+        addToHistory(inputText, result);
+        watcher->deleteLater();
+    });
+    watcher->setFuture(future);
+}
+
+void MainWindow::onGenerateFlashcardsClicked()
+{
+    if (!validateInputText()) {
+        return;
+    }
+    
+    QString inputText = homePage->getInputText();
+    statusBar->showMessage("Generating flashcards...");
+    
+    QFuture<QString> future = llmProcessor->generateFlashcardsAsync(inputText);
+    QFutureWatcher<QString> *watcher = new QFutureWatcher<QString>(this);
+    connect(watcher, &QFutureWatcher<QString>::finished, [this, watcher, inputText]() {
+        QString result = watcher->result();
+        onFlashcardsGenerated(result);
+        addToHistory(inputText, result);
+        watcher->deleteLater();
+    });
+    watcher->setFuture(future);
 }
 
 QString MainWindow::getMainStyleSheet()
