@@ -1,5 +1,5 @@
-#ifndef LLM_PROCESSOR_H
-#define LLM_PROCESSOR_H
+#ifndef LLMPROCESSOR_H
+#define LLMPROCESSOR_H
 
 #include <string>
 #include <memory>
@@ -30,6 +30,10 @@ public:
     QFuture<QString> generateFlashcardsAsync(const QString& inputText);
     QFuture<QString> generateEnumerationsAsync(const QString& inputText);
 
+signals:
+    void statusUpdate(const QString& status);
+    void error(const QString& message);
+
 private:
     // Pointer to the implementation (PIMPL pattern)
     class LLMProcessorImpl;
@@ -44,9 +48,7 @@ private:
     // Core generation function
     QString generateContent(const QString& prompt);
 
-signals:
-    void statusUpdate(const QString& status);
-    void error(const QString& message);
+    void cleanup();
 };
 
-#endif // LLM_PROCESSOR_H 
+#endif // LLMPROCESSOR_H 

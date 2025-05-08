@@ -78,6 +78,16 @@ echo Creating required directories...
 if not exist "Release\models" mkdir "Release\models"
 if not exist "Release\resources" mkdir "Release\resources"
 
+:: Copy model file
+echo Copying model file...
+if exist "..\models\mistral-7b-v0.1.Q4_K_M.gguf" (
+    copy "..\models\mistral-7b-v0.1.Q4_K_M.gguf" "Release\models\"
+    echo Model file copied successfully
+) else (
+    echo %YELLOW%Warning: Model file not found at ..\models\mistral-7b-v0.1.Q4_K_M.gguf%RESET%
+    echo Please download the model file and place it in the models directory
+)
+
 :: Copy resources
 echo Copying resources...
 xcopy /E /I /Y "..\resources\*" "Release\resources\"
@@ -85,17 +95,15 @@ xcopy /E /I /Y "..\forms\*" "Release\forms\"
 
 :: Create model readme
 echo Creating model readme...
-(
-echo Place your GGUF model files in this directory.
-echo.
-echo Download models from:
-echo - https://huggingface.co/TheBloke/Mistral-7B-v0.1-GGUF
-echo.
-echo Recommended model:
-echo - mistral-7b-v0.1.Q4_K_M.gguf
-echo.
-echo These files are large (4GB) and not included in the repository.
-) > "Release\models\README.txt"
+echo Place your GGUF model files in this directory. > "Release\models\README.txt"
+echo. >> "Release\models\README.txt"
+echo Download models from: >> "Release\models\README.txt"
+echo - https://huggingface.co/TheBloke/Mistral-7B-v0.1-GGUF >> "Release\models\README.txt"
+echo. >> "Release\models\README.txt"
+echo Recommended model: >> "Release\models\README.txt"
+echo - mistral-7b-v0.1.Q4_K_M.gguf >> "Release\models\README.txt"
+echo. >> "Release\models\README.txt"
+echo These files are large (4GB) and not included in the repository. >> "Release\models\README.txt"
 
 :: Check if build was successful
 if exist "Release\TextMaster.exe" (

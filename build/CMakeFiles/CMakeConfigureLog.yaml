@@ -24,7 +24,7 @@ events:
       The output was:
       0
       MSBuild version 17.13.19+0d9f5a35a for .NET Framework
-      Build started 05/05/2025 12:31:54 pm.
+      Build started 08/05/2025 11:40:13 pm.
       
       Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\4.0.1\\CompilerIdCXX\\CompilerIdCXX.vcxproj" on node 1 (default targets).
       PrepareForBuild:
@@ -62,7 +62,7 @@ events:
           0 Warning(s)
           0 Error(s)
       
-      Time Elapsed 00:00:01.09
+      Time Elapsed 00:00:01.02
       
       
       Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
@@ -81,55 +81,60 @@ events:
     checks:
       - "Detecting CXX compiler ABI info"
     directories:
-      source: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-zx81tk"
-      binary: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-zx81tk"
+      source: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-jdsl7x"
+      binary: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-jdsl7x"
     cmakeVariables:
-      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /GR /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
       CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
       CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
-      VCPKG_INSTALLED_DIR: "C:/Projects/audio-to-brief-notes/vcpkg/installed"
-      VCPKG_PREFER_SYSTEM_LIBS: "OFF"
-      VCPKG_TARGET_TRIPLET: "x64-windows"
-      Z_VCPKG_ROOT_DIR: "C:/Projects/audio-to-brief-notes/vcpkg"
     buildResult:
       variable: "CMAKE_CXX_ABI_COMPILED"
       cached: true
       stdout: |
-        Change Dir: 'C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-zx81tk'
+        Change Dir: 'C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-jdsl7x'
         
-        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_9cfe7.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_c5de4.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.13.19+0d9f5a35a for .NET Framework
-        Build started 05/05/2025 12:31:55 pm.
+        Build started 08/05/2025 11:40:14 pm.
         
-        Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-zx81tk\\cmTC_9cfe7.vcxproj" on node 1 (default targets).
+        Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jdsl7x\\cmTC_c5de4.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_9cfe7.dir\\Debug\\".
+          Creating directory "cmTC_c5de4.dir\\Debug\\".
           Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-zx81tk\\Debug\\".
-          Creating directory "cmTC_9cfe7.dir\\Debug\\cmTC_9cfe7.tlog\\".
+          Creating directory "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jdsl7x\\Debug\\".
+          Creating directory "cmTC_c5de4.dir\\Debug\\cmTC_c5de4.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_9cfe7.dir\\Debug\\cmTC_9cfe7.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_9cfe7.dir\\Debug\\cmTC_9cfe7.tlog\\unsuccessfulbuild".
+          Creating "cmTC_c5de4.dir\\Debug\\cmTC_c5de4.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_c5de4.dir\\Debug\\cmTC_c5de4.tlog\\unsuccessfulbuild".
+        VcpkgTripletSelection:
+          Using triplet "x64-windows" from "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\"
+          Using normalized configuration "Debug"
         ClCompile:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_9cfe7.dir\\Debug\\\\" /Fd"cmTC_9cfe7.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCXXCompilerABI.cpp"
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_c5de4.dir\\Debug\\\\" /Fd"cmTC_c5de4.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCXXCompilerABI.cpp"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.43.34810 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_9cfe7.dir\\Debug\\\\" /Fd"cmTC_9cfe7.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCXXCompilerABI.cpp"
+          cl /c /I"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_c5de4.dir\\Debug\\\\" /Fd"cmTC_c5de4.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Program Files\\CMake\\share\\cmake-4.0\\Modules\\CMakeCXXCompilerABI.cpp"
           CMakeCXXCompilerABI.cpp
         Link:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-zx81tk\\Debug\\cmTC_9cfe7.exe" /INCREMENTAL /ILK:"cmTC_9cfe7.dir\\Debug\\cmTC_9cfe7.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-zx81tk/Debug/cmTC_9cfe7.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-zx81tk/Debug/cmTC_9cfe7.lib" /MACHINE:X64  /machine:x64 cmTC_9cfe7.dir\\Debug\\CMakeCXXCompilerABI.obj
-          cmTC_9cfe7.vcxproj -> C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-zx81tk\\Debug\\cmTC_9cfe7.exe
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jdsl7x\\Debug\\cmTC_c5de4.exe" /INCREMENTAL /ILK:"cmTC_c5de4.dir\\Debug\\cmTC_c5de4.ilk" /NOLOGO /LIBPATH:"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-jdsl7x/Debug/cmTC_c5de4.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-jdsl7x/Debug/cmTC_c5de4.lib" /MACHINE:X64  /machine:x64 cmTC_c5de4.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_c5de4.vcxproj -> C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jdsl7x\\Debug\\cmTC_c5de4.exe
+        AppLocalFromInstalled:
+          pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\Projects\\audio-to-brief-notes\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jdsl7x\\Debug\\cmTC_c5de4.exe" "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_c5de4.dir\\Debug\\cmTC_c5de4.tlog\\cmTC_c5de4.write.1u.tlog" "cmTC_c5de4.dir\\Debug\\vcpkg.applocal.log"
+          'pwsh.exe' is not recognized as an internal or external command,
+          operable program or batch file.
+          The command "pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\Projects\\audio-to-brief-notes\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jdsl7x\\Debug\\cmTC_c5de4.exe" "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_c5de4.dir\\Debug\\cmTC_c5de4.tlog\\cmTC_c5de4.write.1u.tlog" "cmTC_c5de4.dir\\Debug\\vcpkg.applocal.log"" exited with code 9009.
+          "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -ExecutionPolicy Bypass -noprofile -File "C:\\Projects\\audio-to-brief-notes\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jdsl7x\\Debug\\cmTC_c5de4.exe" "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_c5de4.dir\\Debug\\cmTC_c5de4.tlog\\cmTC_c5de4.write.1u.tlog" "cmTC_c5de4.dir\\Debug\\vcpkg.applocal.log"
         FinalizeBuildStatus:
-          Deleting file "cmTC_9cfe7.dir\\Debug\\cmTC_9cfe7.tlog\\unsuccessfulbuild".
-          Touching "cmTC_9cfe7.dir\\Debug\\cmTC_9cfe7.tlog\\cmTC_9cfe7.lastbuildstate".
-        Done Building Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-zx81tk\\cmTC_9cfe7.vcxproj" (default targets).
+          Deleting file "cmTC_c5de4.dir\\Debug\\cmTC_c5de4.tlog\\unsuccessfulbuild".
+          Touching "cmTC_c5de4.dir\\Debug\\cmTC_c5de4.tlog\\cmTC_c5de4.lastbuildstate".
+        Done Building Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-jdsl7x\\cmTC_c5de4.vcxproj" (default targets).
         
         Build succeeded.
             0 Warning(s)
             0 Error(s)
         
-        Time Elapsed 00:00:00.56
+        Time Elapsed 00:00:01.07
         
       exitCode: 0
   -
@@ -167,65 +172,62 @@ events:
       - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckCXXSourceCompiles.cmake:58 (cmake_check_source_compiles)"
       - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:99 (check_cxx_source_compiles)"
       - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:163 (_threads_check_libc)"
-      - "vcpkg/scripts/buildsystems/vcpkg.cmake:893 (_find_package)"
       - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake:78 (find_package)"
       - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:36 (find_dependency)"
       - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/Qt6Dependencies.cmake:24 (_qt_internal_find_third_party_dependencies)"
       - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/Qt6Config.cmake:119 (include)"
-      - "vcpkg/scripts/buildsystems/vcpkg.cmake:893 (_find_package)"
-      - "CMakeLists.txt:9 (find_package)"
+      - "CMakeLists.txt:12 (find_package)"
     checks:
       - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
     directories:
-      source: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-xm4kf2"
-      binary: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-xm4kf2"
+      source: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-p0c0jm"
+      binary: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-p0c0jm"
     cmakeVariables:
-      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /GR /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
       CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
       CMAKE_MODULE_PATH: "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6;C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules;C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/3rdparty/kwin"
-      VCPKG_INSTALLED_DIR: "C:/Projects/audio-to-brief-notes/vcpkg/installed"
-      VCPKG_PREFER_SYSTEM_LIBS: "OFF"
-      VCPKG_TARGET_TRIPLET: "x64-windows"
-      Z_VCPKG_ROOT_DIR: "C:/Projects/audio-to-brief-notes/vcpkg"
     buildResult:
       variable: "CMAKE_HAVE_LIBC_PTHREAD"
       cached: true
       stdout: |
-        Change Dir: 'C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-xm4kf2'
+        Change Dir: 'C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-p0c0jm'
         
-        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_a5c0d.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_6c9bd.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.13.19+0d9f5a35a for .NET Framework
-        Build started 05/05/2025 12:31:56 pm.
+        Build started 08/05/2025 11:40:16 pm.
         
-        Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-xm4kf2\\cmTC_a5c0d.vcxproj" on node 1 (default targets).
+        Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-p0c0jm\\cmTC_6c9bd.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_a5c0d.dir\\Debug\\".
+          Creating directory "cmTC_6c9bd.dir\\Debug\\".
           Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-xm4kf2\\Debug\\".
-          Creating directory "cmTC_a5c0d.dir\\Debug\\cmTC_a5c0d.tlog\\".
+          Creating directory "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-p0c0jm\\Debug\\".
+          Creating directory "cmTC_6c9bd.dir\\Debug\\cmTC_6c9bd.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_a5c0d.dir\\Debug\\cmTC_a5c0d.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_a5c0d.dir\\Debug\\cmTC_a5c0d.tlog\\unsuccessfulbuild".
+          Creating "cmTC_6c9bd.dir\\Debug\\cmTC_6c9bd.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_6c9bd.dir\\Debug\\cmTC_6c9bd.tlog\\unsuccessfulbuild".
+        VcpkgTripletSelection:
+          Using triplet "x64-windows" from "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\"
+          Using normalized configuration "Debug"
         ClCompile:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++17 /Fo"cmTC_a5c0d.dir\\Debug\\\\" /Fd"cmTC_a5c0d.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-xm4kf2\\src.cxx"
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_6c9bd.dir\\Debug\\\\" /Fd"cmTC_6c9bd.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-p0c0jm\\src.cxx"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.43.34810 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++17 /Fo"cmTC_a5c0d.dir\\Debug\\\\" /Fd"cmTC_a5c0d.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-xm4kf2\\src.cxx"
+          cl /c /I"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_6c9bd.dir\\Debug\\\\" /Fd"cmTC_6c9bd.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-p0c0jm\\src.cxx"
           src.cxx
-        C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-xm4kf2\\src.cxx(1,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-xm4kf2\\cmTC_a5c0d.vcxproj]
-        Done Building Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-xm4kf2\\cmTC_a5c0d.vcxproj" (default targets) -- FAILED.
+        C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-p0c0jm\\src.cxx(1,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-p0c0jm\\cmTC_6c9bd.vcxproj]
+        Done Building Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-p0c0jm\\cmTC_6c9bd.vcxproj" (default targets) -- FAILED.
         
         Build FAILED.
         
-        "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-xm4kf2\\cmTC_a5c0d.vcxproj" (default target) (1) ->
+        "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-p0c0jm\\cmTC_6c9bd.vcxproj" (default target) (1) ->
         (ClCompile target) -> 
-          C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-xm4kf2\\src.cxx(1,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-xm4kf2\\cmTC_a5c0d.vcxproj]
+          C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-p0c0jm\\src.cxx(1,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-p0c0jm\\cmTC_6c9bd.vcxproj]
         
             0 Warning(s)
             1 Error(s)
         
-        Time Elapsed 00:00:00.38
+        Time Elapsed 00:00:00.89
         
       exitCode: 1
   -
@@ -234,62 +236,125 @@ events:
       - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckLibraryExists.cmake:112 (try_compile)"
       - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:112 (check_library_exists)"
       - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:175 (_threads_check_lib)"
-      - "vcpkg/scripts/buildsystems/vcpkg.cmake:893 (_find_package)"
       - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake:78 (find_package)"
       - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:36 (find_dependency)"
       - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/Qt6Dependencies.cmake:24 (_qt_internal_find_third_party_dependencies)"
       - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/Qt6Config.cmake:119 (include)"
-      - "vcpkg/scripts/buildsystems/vcpkg.cmake:893 (_find_package)"
-      - "CMakeLists.txt:9 (find_package)"
+      - "CMakeLists.txt:12 (find_package)"
     checks:
       - "Looking for pthread_create in pthreads"
     directories:
-      source: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-cqs95p"
-      binary: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-cqs95p"
+      source: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-u8dhlr"
+      binary: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-u8dhlr"
     cmakeVariables:
-      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /GR /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
       CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
       CMAKE_MODULE_PATH: "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6;C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules;C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/3rdparty/kwin"
-      VCPKG_INSTALLED_DIR: "C:/Projects/audio-to-brief-notes/vcpkg/installed"
-      VCPKG_PREFER_SYSTEM_LIBS: "OFF"
-      VCPKG_TARGET_TRIPLET: "x64-windows"
-      Z_VCPKG_ROOT_DIR: "C:/Projects/audio-to-brief-notes/vcpkg"
     buildResult:
       variable: "CMAKE_HAVE_PTHREADS_CREATE"
       cached: true
       stdout: |
-        Change Dir: 'C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-cqs95p'
+        Change Dir: 'C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-u8dhlr'
         
-        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_ef516.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_b5af0.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.13.19+0d9f5a35a for .NET Framework
-        Build started 05/05/2025 12:31:57 pm.
+        Build started 08/05/2025 11:40:17 pm.
         
-        Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-cqs95p\\cmTC_ef516.vcxproj" on node 1 (default targets).
+        Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u8dhlr\\cmTC_b5af0.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_ef516.dir\\Debug\\".
+          Creating directory "cmTC_b5af0.dir\\Debug\\".
           Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-cqs95p\\Debug\\".
-          Creating directory "cmTC_ef516.dir\\Debug\\cmTC_ef516.tlog\\".
+          Creating directory "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u8dhlr\\Debug\\".
+          Creating directory "cmTC_b5af0.dir\\Debug\\cmTC_b5af0.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_ef516.dir\\Debug\\cmTC_ef516.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_ef516.dir\\Debug\\cmTC_ef516.tlog\\unsuccessfulbuild".
+          Creating "cmTC_b5af0.dir\\Debug\\cmTC_b5af0.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_b5af0.dir\\Debug\\cmTC_b5af0.tlog\\unsuccessfulbuild".
+        VcpkgTripletSelection:
+          Using triplet "x64-windows" from "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\"
+          Using normalized configuration "Debug"
         ClCompile:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++17 /Fo"cmTC_ef516.dir\\Debug\\\\" /Fd"cmTC_ef516.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-cqs95p\\CheckFunctionExists.cxx"
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_b5af0.dir\\Debug\\\\" /Fd"cmTC_b5af0.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u8dhlr\\CheckFunctionExists.cxx"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.43.34810 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++17 /Fo"cmTC_ef516.dir\\Debug\\\\" /Fd"cmTC_ef516.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-cqs95p\\CheckFunctionExists.cxx"
+          cl /c /I"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_b5af0.dir\\Debug\\\\" /Fd"cmTC_b5af0.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u8dhlr\\CheckFunctionExists.cxx"
           CheckFunctionExists.cxx
         Link:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-cqs95p\\Debug\\cmTC_ef516.exe" /INCREMENTAL /ILK:"cmTC_ef516.dir\\Debug\\cmTC_ef516.ilk" /NOLOGO pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-cqs95p/Debug/cmTC_ef516.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-cqs95p/Debug/cmTC_ef516.lib" /MACHINE:X64  /machine:x64 cmTC_ef516.dir\\Debug\\CheckFunctionExists.obj
-        LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-cqs95p\\cmTC_ef516.vcxproj]
-        Done Building Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-cqs95p\\cmTC_ef516.vcxproj" (default targets) -- FAILED.
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u8dhlr\\Debug\\cmTC_b5af0.exe" /INCREMENTAL /ILK:"cmTC_b5af0.dir\\Debug\\cmTC_b5af0.ilk" /NOLOGO /LIBPATH:"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-u8dhlr/Debug/cmTC_b5af0.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-u8dhlr/Debug/cmTC_b5af0.lib" /MACHINE:X64  /machine:x64 cmTC_b5af0.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u8dhlr\\cmTC_b5af0.vcxproj]
+        Done Building Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u8dhlr\\cmTC_b5af0.vcxproj" (default targets) -- FAILED.
         
         Build FAILED.
         
-        "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-cqs95p\\cmTC_ef516.vcxproj" (default target) (1) ->
+        "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u8dhlr\\cmTC_b5af0.vcxproj" (default target) (1) ->
         (Link target) -> 
-          LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-cqs95p\\cmTC_ef516.vcxproj]
+          LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-u8dhlr\\cmTC_b5af0.vcxproj]
+        
+            0 Warning(s)
+            1 Error(s)
+        
+        Time Elapsed 00:00:00.49
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckLibraryExists.cmake:112 (try_compile)"
+      - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:112 (check_library_exists)"
+      - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:176 (_threads_check_lib)"
+      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake:78 (find_package)"
+      - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:36 (find_dependency)"
+      - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/Qt6Dependencies.cmake:24 (_qt_internal_find_third_party_dependencies)"
+      - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/Qt6Config.cmake:119 (include)"
+      - "CMakeLists.txt:12 (find_package)"
+    checks:
+      - "Looking for pthread_create in pthread"
+    directories:
+      source: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-fl1o3k"
+      binary: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-fl1o3k"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /GR /EHsc"
+      CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
+      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
+      CMAKE_MODULE_PATH: "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6;C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules;C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/3rdparty/kwin"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREAD_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-fl1o3k'
+        
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_94df6.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        MSBuild version 17.13.19+0d9f5a35a for .NET Framework
+        Build started 08/05/2025 11:40:18 pm.
+        
+        Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-fl1o3k\\cmTC_94df6.vcxproj" on node 1 (default targets).
+        PrepareForBuild:
+          Creating directory "cmTC_94df6.dir\\Debug\\".
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          Creating directory "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-fl1o3k\\Debug\\".
+          Creating directory "cmTC_94df6.dir\\Debug\\cmTC_94df6.tlog\\".
+        InitializeBuildStatus:
+          Creating "cmTC_94df6.dir\\Debug\\cmTC_94df6.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_94df6.dir\\Debug\\cmTC_94df6.tlog\\unsuccessfulbuild".
+        VcpkgTripletSelection:
+          Using triplet "x64-windows" from "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\"
+          Using normalized configuration "Debug"
+        ClCompile:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_94df6.dir\\Debug\\\\" /Fd"cmTC_94df6.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-fl1o3k\\CheckFunctionExists.cxx"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.43.34810 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /I"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_94df6.dir\\Debug\\\\" /Fd"cmTC_94df6.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-fl1o3k\\CheckFunctionExists.cxx"
+          CheckFunctionExists.cxx
+        Link:
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-fl1o3k\\Debug\\cmTC_94df6.exe" /INCREMENTAL /ILK:"cmTC_94df6.dir\\Debug\\cmTC_94df6.ilk" /NOLOGO /LIBPATH:"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-fl1o3k/Debug/cmTC_94df6.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-fl1o3k/Debug/cmTC_94df6.lib" /MACHINE:X64  /machine:x64 cmTC_94df6.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthread.lib' [C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-fl1o3k\\cmTC_94df6.vcxproj]
+        Done Building Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-fl1o3k\\cmTC_94df6.vcxproj" (default targets) -- FAILED.
+        
+        Build FAILED.
+        
+        "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-fl1o3k\\cmTC_94df6.vcxproj" (default target) (1) ->
+        (Link target) -> 
+          LINK : fatal error LNK1104: cannot open file 'pthread.lib' [C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-fl1o3k\\cmTC_94df6.vcxproj]
         
             0 Warning(s)
             1 Error(s)
@@ -300,139 +365,72 @@ events:
   -
     kind: "try_compile-v1"
     backtrace:
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckLibraryExists.cmake:112 (try_compile)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:112 (check_library_exists)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/FindThreads.cmake:176 (_threads_check_lib)"
-      - "vcpkg/scripts/buildsystems/vcpkg.cmake:893 (_find_package)"
-      - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake:78 (find_package)"
-      - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:36 (find_dependency)"
-      - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/Qt6Dependencies.cmake:24 (_qt_internal_find_third_party_dependencies)"
-      - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/Qt6Config.cmake:119 (include)"
-      - "vcpkg/scripts/buildsystems/vcpkg.cmake:893 (_find_package)"
-      - "CMakeLists.txt:9 (find_package)"
-    checks:
-      - "Looking for pthread_create in pthread"
-    directories:
-      source: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-qt87aj"
-      binary: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-qt87aj"
-    cmakeVariables:
-      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
-      CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
-      CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
-      CMAKE_MODULE_PATH: "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6;C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules;C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/3rdparty/kwin"
-      VCPKG_INSTALLED_DIR: "C:/Projects/audio-to-brief-notes/vcpkg/installed"
-      VCPKG_PREFER_SYSTEM_LIBS: "OFF"
-      VCPKG_TARGET_TRIPLET: "x64-windows"
-      Z_VCPKG_ROOT_DIR: "C:/Projects/audio-to-brief-notes/vcpkg"
-    buildResult:
-      variable: "CMAKE_HAVE_PTHREAD_CREATE"
-      cached: true
-      stdout: |
-        Change Dir: 'C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-qt87aj'
-        
-        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_5843a.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
-        MSBuild version 17.13.19+0d9f5a35a for .NET Framework
-        Build started 05/05/2025 12:31:58 pm.
-        
-        Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qt87aj\\cmTC_5843a.vcxproj" on node 1 (default targets).
-        PrepareForBuild:
-          Creating directory "cmTC_5843a.dir\\Debug\\".
-          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qt87aj\\Debug\\".
-          Creating directory "cmTC_5843a.dir\\Debug\\cmTC_5843a.tlog\\".
-        InitializeBuildStatus:
-          Creating "cmTC_5843a.dir\\Debug\\cmTC_5843a.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_5843a.dir\\Debug\\cmTC_5843a.tlog\\unsuccessfulbuild".
-        ClCompile:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++17 /Fo"cmTC_5843a.dir\\Debug\\\\" /Fd"cmTC_5843a.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qt87aj\\CheckFunctionExists.cxx"
-          Microsoft (R) C/C++ Optimizing Compiler Version 19.43.34810 for x64
-          Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++17 /Fo"cmTC_5843a.dir\\Debug\\\\" /Fd"cmTC_5843a.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qt87aj\\CheckFunctionExists.cxx"
-          CheckFunctionExists.cxx
-        Link:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qt87aj\\Debug\\cmTC_5843a.exe" /INCREMENTAL /ILK:"cmTC_5843a.dir\\Debug\\cmTC_5843a.ilk" /NOLOGO pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-qt87aj/Debug/cmTC_5843a.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-qt87aj/Debug/cmTC_5843a.lib" /MACHINE:X64  /machine:x64 cmTC_5843a.dir\\Debug\\CheckFunctionExists.obj
-        LINK : fatal error LNK1104: cannot open file 'pthread.lib' [C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qt87aj\\cmTC_5843a.vcxproj]
-        Done Building Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qt87aj\\cmTC_5843a.vcxproj" (default targets) -- FAILED.
-        
-        Build FAILED.
-        
-        "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qt87aj\\cmTC_5843a.vcxproj" (default target) (1) ->
-        (Link target) -> 
-          LINK : fatal error LNK1104: cannot open file 'pthread.lib' [C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-qt87aj\\cmTC_5843a.vcxproj]
-        
-            0 Warning(s)
-            1 Error(s)
-        
-        Time Elapsed 00:00:00.47
-        
-      exitCode: 1
-  -
-    kind: "try_compile-v1"
-    backtrace:
       - "C:/Program Files/CMake/share/cmake-4.0/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
       - "C:/Program Files/CMake/share/cmake-4.0/Modules/CheckCXXSourceCompiles.cmake:58 (cmake_check_source_compiles)"
       - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/FindWrapAtomic.cmake:36 (check_cxx_source_compiles)"
-      - "vcpkg/scripts/buildsystems/vcpkg.cmake:893 (_find_package)"
       - "C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake:78 (find_package)"
       - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake:36 (find_dependency)"
       - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Core/Qt6CoreDependencies.cmake:30 (_qt_internal_find_third_party_dependencies)"
       - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6Core/Qt6CoreConfig.cmake:41 (include)"
-      - "vcpkg/scripts/buildsystems/vcpkg.cmake:893 (_find_package)"
       - "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/Qt6Config.cmake:164 (find_package)"
-      - "vcpkg/scripts/buildsystems/vcpkg.cmake:893 (_find_package)"
-      - "CMakeLists.txt:9 (find_package)"
+      - "CMakeLists.txt:12 (find_package)"
     checks:
       - "Performing Test HAVE_STDATOMIC"
     directories:
-      source: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-y7z6eq"
-      binary: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-y7z6eq"
+      source: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-lbuk06"
+      binary: "C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-lbuk06"
     cmakeVariables:
-      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /EHsc"
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /GR /EHsc"
       CMAKE_CXX_FLAGS_DEBUG: "/Zi /Ob0 /Od /RTC1"
       CMAKE_EXE_LINKER_FLAGS: "/machine:x64"
       CMAKE_MODULE_PATH: "C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6;C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules;C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/3rdparty/kwin"
-      VCPKG_INSTALLED_DIR: "C:/Projects/audio-to-brief-notes/vcpkg/installed"
-      VCPKG_PREFER_SYSTEM_LIBS: "OFF"
-      VCPKG_TARGET_TRIPLET: "x64-windows"
-      Z_VCPKG_ROOT_DIR: "C:/Projects/audio-to-brief-notes/vcpkg"
     buildResult:
       variable: "HAVE_STDATOMIC"
       cached: true
       stdout: |
-        Change Dir: 'C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-y7z6eq'
+        Change Dir: 'C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-lbuk06'
         
-        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_1a8c2.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        Run Build Command(s): "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_d9b2b.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
         MSBuild version 17.13.19+0d9f5a35a for .NET Framework
-        Build started 05/05/2025 12:31:58 pm.
+        Build started 08/05/2025 11:40:19 pm.
         
-        Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-y7z6eq\\cmTC_1a8c2.vcxproj" on node 1 (default targets).
+        Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lbuk06\\cmTC_d9b2b.vcxproj" on node 1 (default targets).
         PrepareForBuild:
-          Creating directory "cmTC_1a8c2.dir\\Debug\\".
+          Creating directory "cmTC_d9b2b.dir\\Debug\\".
           Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
-          Creating directory "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-y7z6eq\\Debug\\".
-          Creating directory "cmTC_1a8c2.dir\\Debug\\cmTC_1a8c2.tlog\\".
+          Creating directory "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lbuk06\\Debug\\".
+          Creating directory "cmTC_d9b2b.dir\\Debug\\cmTC_d9b2b.tlog\\".
         InitializeBuildStatus:
-          Creating "cmTC_1a8c2.dir\\Debug\\cmTC_1a8c2.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
-          Touching "cmTC_1a8c2.dir\\Debug\\cmTC_1a8c2.tlog\\unsuccessfulbuild".
+          Creating "cmTC_d9b2b.dir\\Debug\\cmTC_d9b2b.tlog\\unsuccessfulbuild" because "AlwaysCreate" was specified.
+          Touching "cmTC_d9b2b.dir\\Debug\\cmTC_d9b2b.tlog\\unsuccessfulbuild".
+        VcpkgTripletSelection:
+          Using triplet "x64-windows" from "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\"
+          Using normalized configuration "Debug"
         ClCompile:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_STDATOMIC /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++17 /Fo"cmTC_1a8c2.dir\\Debug\\\\" /Fd"cmTC_1a8c2.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-y7z6eq\\src.cxx"
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\CL.exe /c /I"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_STDATOMIC /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_d9b2b.dir\\Debug\\\\" /Fd"cmTC_d9b2b.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lbuk06\\src.cxx"
           Microsoft (R) C/C++ Optimizing Compiler Version 19.43.34810 for x64
           Copyright (C) Microsoft Corporation.  All rights reserved.
-          cl /c /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_STDATOMIC /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /std:c++17 /Fo"cmTC_1a8c2.dir\\Debug\\\\" /Fd"cmTC_1a8c2.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-y7z6eq\\src.cxx"
+          cl /c /I"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\include" /Zi /W1 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_STDATOMIC /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_d9b2b.dir\\Debug\\\\" /Fd"cmTC_d9b2b.dir\\Debug\\vc143.pdb" /external:W1 /Gd /TP /errorReport:queue "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lbuk06\\src.cxx"
           src.cxx
         Link:
-          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-y7z6eq\\Debug\\cmTC_1a8c2.exe" /INCREMENTAL /ILK:"cmTC_1a8c2.dir\\Debug\\cmTC_1a8c2.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-y7z6eq/Debug/cmTC_1a8c2.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-y7z6eq/Debug/cmTC_1a8c2.lib" /MACHINE:X64  /machine:x64 cmTC_1a8c2.dir\\Debug\\src.obj
-          cmTC_1a8c2.vcxproj -> C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-y7z6eq\\Debug\\cmTC_1a8c2.exe
+          C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.43.34808\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lbuk06\\Debug\\cmTC_d9b2b.exe" /INCREMENTAL /ILK:"cmTC_d9b2b.dir\\Debug\\cmTC_d9b2b.ilk" /NOLOGO /LIBPATH:"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\lib" /LIBPATH:"C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\lib\\manual-link" kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\lib\\*.lib" /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-lbuk06/Debug/cmTC_d9b2b.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Projects/audio-to-brief-notes/build/CMakeFiles/CMakeScratch/TryCompile-lbuk06/Debug/cmTC_d9b2b.lib" /MACHINE:X64  /machine:x64 cmTC_d9b2b.dir\\Debug\\src.obj
+          cmTC_d9b2b.vcxproj -> C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lbuk06\\Debug\\cmTC_d9b2b.exe
+        AppLocalFromInstalled:
+          pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\Projects\\audio-to-brief-notes\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lbuk06\\Debug\\cmTC_d9b2b.exe" "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_d9b2b.dir\\Debug\\cmTC_d9b2b.tlog\\cmTC_d9b2b.write.1u.tlog" "cmTC_d9b2b.dir\\Debug\\vcpkg.applocal.log"
+          'pwsh.exe' is not recognized as an internal or external command,
+          operable program or batch file.
+          The command "pwsh.exe -ExecutionPolicy Bypass -noprofile -File "C:\\Projects\\audio-to-brief-notes\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lbuk06\\Debug\\cmTC_d9b2b.exe" "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_d9b2b.dir\\Debug\\cmTC_d9b2b.tlog\\cmTC_d9b2b.write.1u.tlog" "cmTC_d9b2b.dir\\Debug\\vcpkg.applocal.log"" exited with code 9009.
+          "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" -ExecutionPolicy Bypass -noprofile -File "C:\\Projects\\audio-to-brief-notes\\vcpkg\\scripts\\buildsystems\\msbuild\\applocal.ps1" "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lbuk06\\Debug\\cmTC_d9b2b.exe" "C:\\Projects\\audio-to-brief-notes\\vcpkg\\installed\\x64-windows\\debug\\bin" "cmTC_d9b2b.dir\\Debug\\cmTC_d9b2b.tlog\\cmTC_d9b2b.write.1u.tlog" "cmTC_d9b2b.dir\\Debug\\vcpkg.applocal.log"
         FinalizeBuildStatus:
-          Deleting file "cmTC_1a8c2.dir\\Debug\\cmTC_1a8c2.tlog\\unsuccessfulbuild".
-          Touching "cmTC_1a8c2.dir\\Debug\\cmTC_1a8c2.tlog\\cmTC_1a8c2.lastbuildstate".
-        Done Building Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-y7z6eq\\cmTC_1a8c2.vcxproj" (default targets).
+          Deleting file "cmTC_d9b2b.dir\\Debug\\cmTC_d9b2b.tlog\\unsuccessfulbuild".
+          Touching "cmTC_d9b2b.dir\\Debug\\cmTC_d9b2b.tlog\\cmTC_d9b2b.lastbuildstate".
+        Done Building Project "C:\\Projects\\audio-to-brief-notes\\build\\CMakeFiles\\CMakeScratch\\TryCompile-lbuk06\\cmTC_d9b2b.vcxproj" (default targets).
         
         Build succeeded.
             0 Warning(s)
             0 Error(s)
         
-        Time Elapsed 00:00:00.63
+        Time Elapsed 00:00:01.25
         
       exitCode: 0
 ...

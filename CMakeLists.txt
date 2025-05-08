@@ -1,12 +1,18 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.16)
 project(TextMaster VERSION 1.0.0 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Enable debug output
+add_definitions(-DQT_DEBUG)
+
 # Find required packages
-find_package(Qt6 COMPONENTS Core Widgets Concurrent REQUIRED)
+find_package(Qt6 COMPONENTS Core Gui Widgets Concurrent REQUIRED)
+if (NOT Qt6_FOUND)
+    find_package(Qt5 COMPONENTS Core Gui Widgets Concurrent REQUIRED)
+endif()
 
 # Enable automoc for Qt
 set(CMAKE_AUTOMOC ON)
@@ -50,9 +56,10 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${UI_FILES} ${RESOURCES})
 
 # Link libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    Qt6::Core
-    Qt6::Widgets
-    Qt6::Concurrent
+    Qt::Core
+    Qt::Gui
+    Qt::Widgets
+    Qt::Concurrent
 )
 
 # Set include directories
@@ -98,3 +105,48 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     ${CMAKE_BINARY_DIR}/model_readme.txt
     $<TARGET_FILE_DIR:${PROJECT_NAME}>/models/README.txt
     )
+
+# Copy Qt plugins
+if(WIN32)
+    if(Qt6_FOUND)
+        set(QT_PLUGINS_DIR "${Qt6_DIR}/../../../plugins")
+    else()
+        set(QT_PLUGINS_DIR "${Qt5_DIR}/../../../plugins")
+    endif()
+    
+    # Copy platform plugins
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/platforms
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${QT_PLUGINS_DIR}/platforms/qwindows.dll
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/platforms/
+    )
+    
+    # Copy style plugins
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/styles
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${QT_PLUGINS_DIR}/styles/qwindowsvistastyle.dll
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/styles/
+    )
+    
+    # Copy image format plugins
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/imageformats
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${QT_PLUGINS_DIR}/imageformats/qgif.dll
+        ${QT_PLUGINS_DIR}/imageformats/qicns.dll
+        ${QT_PLUGINS_DIR}/imageformats/qico.dll
+        ${QT_PLUGINS_DIR}/imageformats/qjpeg.dll
+        ${QT_PLUGINS_DIR}/imageformats/qpdf.dll
+        ${QT_PLUGINS_DIR}/imageformats/qsvg.dll
+        ${QT_PLUGINS_DIR}/imageformats/qtga.dll
+        ${QT_PLUGINS_DIR}/imageformats/qtiff.dll
+        ${QT_PLUGINS_DIR}/imageformats/qwbmp.dll
+        ${QT_PLUGINS_DIR}/imageformats/qwebp.dll
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/imageformats/
+    )
+endif()

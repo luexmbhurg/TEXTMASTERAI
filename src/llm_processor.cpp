@@ -50,50 +50,141 @@ LLMProcessor::~LLMProcessor()
 
 bool LLMProcessor::initialize(const QString& modelPath)
 {
-    qDebug() << "Initializing LLM with model:" << modelPath;
-    emit statusUpdate("Loading LLM model...");
-    
     try {
-        // Free any existing context
-        if (m_impl->context) {
-            llama_free(m_impl->context);
-            m_impl->context = nullptr;
+        qDebug() << "Starting LLM initialization with model:" << modelPath;
+        
+        // Stage 1: Check model file and system resources
+        if (!QFile::exists(modelPath)) {
+            qDebug() << "Model file does not exist at path:" << modelPath;
+            emit error("Model file not found");
+            return false;
         }
         
-        if (m_impl->model) {
+        QFile modelFile(modelPath);
+        qint64 modelSize = modelFile.size();
+        qDebug() << "Model file size:" << modelSize << "bytes";
+        
+        // Get system memory info
+        QProcess process;
+        process.start("wmic", QStringList() << "OS" << "get" << "FreePhysicalMemory");
+        process.waitForFinished();
+        QString output = process.readAllStandardOutput();
+        qDebug() << "System memory info:" << output;
+        
+        // Parse memory info
+        bool ok;
+        qint64 freeMemory = 0;
+        QStringList lines = output.split("\n");
+        for (const QString& line : lines) {
+            freeMemory = line.trimmed().toLongLong(&ok);
+            if (ok) break;
+        }
+        freeMemory *= 1024; // Convert KB to bytes
+        qDebug() << "Free memory in bytes:" << freeMemory;
+        
+        // Stage 2: Load model with minimal settings
+        qDebug() << "Stage 2: Loading model with minimal settings...";
+        llama_model_params model_params = llama_model_default_params();
+        model_params.n_gpu_layers = 0;      // No GPU
+        model_params.use_mmap = false;      // Disable memory mapping
+        model_params.use_mlock = false;     // Disable memory locking
+        model_params.vocab_only = true;     // Only load vocabulary initially
+        model_params.main_gpu = 0;          // CPU only
+        model_params.check_tensors = false; // Disable tensor validation
+        
+        // Add memory buffer
+        const float memoryBuffer = 1.2f;  // 20% buffer
+        if (freeMemory < modelSize * memoryBuffer) {
+            qDebug() << "Warning: Low memory available. Using ultra-conservative settings.";
+            model_params.vocab_only = true;
+            model_params.use_mmap = false;
+        }
+        
+        qDebug() << "Loading model...";
+        m_impl->model = llama_load_model_from_file(modelPath.toStdString().c_str(), model_params);
+        if (!m_impl->model) {
+            qDebug() << "Failed to load model";
+            emit error("Failed to load model");
+            return false;
+        }
+        qDebug() << "Model loaded successfully";
+        
+        // Stage 3: Create minimal context
+        qDebug() << "Stage 3: Creating minimal context...";
+        llama_context_params ctx_params = llama_context_default_params();
+        ctx_params.n_ctx = 2048;         // Increased context size to handle longer inputs
+        ctx_params.n_threads = 1;        // Single thread
+        ctx_params.n_batch = 512;        // Increased batch size
+        ctx_params.type_k = GGML_TYPE_F32;  // Use F32 for KV cache
+        ctx_params.type_v = GGML_TYPE_F32;  // Use F32 for KV cache
+        ctx_params.logits_all = false;
+        ctx_params.flash_attn = false;   // Disable flash attention
+        ctx_params.offload_kqv = false;  // Disable KQV offloading
+        
+        qDebug() << "Creating context...";
+        m_impl->context = llama_new_context_with_model(m_impl->model, ctx_params);
+        if (!m_impl->context) {
+            qDebug() << "Failed to create context";
+            emit error("Failed to create context");
             llama_free_model(m_impl->model);
             m_impl->model = nullptr;
+            return false;
         }
+        qDebug() << "Context created successfully";
         
-        // Initialize model params
-        llama_model_params model_params = llama_model_default_params();
-        
-        // Load the model
-        m_impl->modelPath = modelPath.toStdString();
-        m_impl->model = llama_load_model_from_file(m_impl->modelPath.c_str(), model_params);
-        
-        if (!m_impl->model) {
-            emit error("Failed to load LLM model");
+        // Stage 4: Test minimal functionality
+        qDebug() << "Stage 4: Testing minimal functionality...";
+        try {
+            const struct llama_vocab* vocab = llama_model_get_vocab(m_impl->model);
+            if (!vocab) {
+                qDebug() << "Failed to get vocabulary";
+                emit error("Failed to get vocabulary");
+                cleanup();
+                return false;
+            }
+
+            // Test with a simple token
+            llama_token test_token = llama_vocab_bos(vocab);
+            if (test_token < 0) {
+                qDebug() << "Failed to get BOS token";
+                emit error("Failed to test vocabulary");
+                cleanup();
+                return false;
+            }
+
+            qDebug() << "Tokenization test successful";
+        } catch (const std::exception& e) {
+            qDebug() << "Exception during tokenization test:" << e.what();
+            emit error(QString("Tokenization test failed: %1").arg(e.what()));
+            cleanup();
             return false;
         }
         
-        // Create context params
-        llama_context_params ctx_params = llama_context_default_params();
-        ctx_params.n_ctx = 4096;  // Increased context size for better responses
-        
-        // Create context
-        m_impl->context = llama_new_context_with_model(m_impl->model, ctx_params);
-        
-        if (!m_impl->context) {
-            emit error("Failed to create LLM context");
-            return false;
-        }
-        
-        emit statusUpdate("LLM model loaded successfully");
+        qDebug() << "LLM initialization completed successfully";
+        emit statusUpdate("LLM initialized successfully");
         return true;
+        
     } catch (const std::exception& e) {
-        emit error(QString("Error initializing LLM: %1").arg(e.what()));
+        qDebug() << "Exception during LLM initialization:" << e.what();
+        emit error(QString("LLM initialization failed: %1").arg(e.what()));
+        cleanup();
         return false;
+    } catch (...) {
+        qDebug() << "Unknown exception during LLM initialization";
+        emit error("LLM initialization failed with unknown error");
+        cleanup();
+        return false;
+    }
+}
+
+void LLMProcessor::cleanup() {
+    if (m_impl->context) {
+        llama_free(m_impl->context);
+        m_impl->context = nullptr;
+    }
+    if (m_impl->model) {
+        llama_free_model(m_impl->model);
+        m_impl->model = nullptr;
     }
 }
 
@@ -147,41 +238,93 @@ QString LLMProcessor::generateContent(const QString& prompt)
     try {
         std::string promptStr = prompt.toStdString();
         
-        // Convert to tokens
-        std::vector<llama_token> tokens(llama_n_ctx(m_impl->context));
-        const struct llama_vocab* vocab = llama_model_get_vocab(llama_get_model(m_impl->context));
-        int n_tokens = llama_tokenize(vocab, promptStr.c_str(), promptStr.length(), tokens.data(), tokens.size(), true, false);
-        if (n_tokens < 0) {
-            emit error("Failed to tokenize input");
+        // Get model and vocabulary
+        const llama_model* model = llama_get_model(m_impl->context);
+        if (!model) {
+            emit error("Failed to get model");
             return QString();
         }
+        
+        const struct llama_vocab* vocab = llama_model_get_vocab(model);
+        if (!vocab) {
+            emit error("Failed to get vocabulary");
+            return QString();
+        }
+        
+        // Get context size
+        const int ctx_size = llama_n_ctx(m_impl->context);
+        qDebug() << "Context size:" << ctx_size;
+        
+        // Convert to tokens with error checking
+        std::vector<llama_token> tokens;
+        tokens.resize(ctx_size);  // Use full context size
+        
+        qDebug() << "Tokenizing input of length:" << promptStr.length();
+        int n_tokens = llama_tokenize(vocab, promptStr.c_str(), promptStr.length(), tokens.data(), tokens.size(), true, false);
+        
+        if (n_tokens < 0 || n_tokens >= ctx_size) {
+            qDebug() << "Tokenization failed - input too long. Tokens needed:" << -n_tokens << "Context size:" << ctx_size;
+            emit error("Input text is too long for the current context size. Please reduce the input length.");
+            return QString();
+        }
+        
+        qDebug() << "Successfully tokenized input into" << n_tokens << "tokens";
         tokens.resize(n_tokens);
         
-        // Process tokens
-        llama_batch batch = llama_batch_init(tokens.size(), 0, 1);
-        for (size_t i = 0; i < tokens.size(); i++) {
-            batch.token[i] = tokens[i];
-            batch.pos[i] = i;
-            batch.seq_id[i] = 0;
-            batch.logits[i] = false;
-        }
-        batch.logits[batch.n_tokens - 1] = true;
-        
-        if (llama_decode(m_impl->context, batch)) {
-            emit error("Failed to process tokens");
+        // Process tokens in batches
+        const int batch_size = 32;  // Process tokens in smaller batches
+        for (int i = 0; i < n_tokens; i += batch_size) {
+            int current_batch_size = std::min(batch_size, n_tokens - i);
+            
+            llama_batch batch = llama_batch_init(current_batch_size, 0, 1);
+            if (!batch.token) {
+                emit error("Failed to allocate batch");
+                return QString();
+            }
+            
+            for (int j = 0; j < current_batch_size; j++) {
+                batch.token[j] = tokens[i + j];
+                batch.pos[j] = i + j;
+                batch.seq_id[j] = 0;
+                batch.logits[j] = (j == current_batch_size - 1);  // Only need logits for last token
+            }
+            
+            if (llama_decode(m_impl->context, batch)) {
+                qDebug() << "Failed to decode batch at position" << i;
+                emit error("Failed to process tokens");
+                llama_batch_free(batch);
+                return QString();
+            }
+            
             llama_batch_free(batch);
-            return QString();
         }
         
         // Generate response
         std::string response;
-        const int max_tokens = 2048;
+        const int max_tokens = 512;  // Reduced from 2048
         llama_token token = 0;
+        
+        // Initialize a more conservative sampler
+        llama_sampler* smpl = llama_sampler_chain_init(llama_sampler_chain_default_params());
+        if (!smpl) {
+            emit error("Failed to initialize sampler");
+            return QString();
+        }
+        
+        llama_sampler_chain_add(smpl, llama_sampler_init_min_p(0.1f, 1));  // Higher minimum probability
+        llama_sampler_chain_add(smpl, llama_sampler_init_temp(0.7f));     // Lower temperature
+        llama_sampler_chain_add(smpl, llama_sampler_init_dist(0));        // Deterministic sampling
         
         for (int i = 0; i < max_tokens; i++) {
             // Get logits and sample token
             const float* logits = llama_get_logits(m_impl->context);
-            token = llama_sampler_sample(llama_sampler_init_dist(0), m_impl->context, 0);
+            if (!logits) {
+                emit error("Failed to get logits");
+                llama_sampler_free(smpl);
+                return QString();
+            }
+            
+            token = llama_sampler_sample(smpl, m_impl->context, 0);
             
             if (token == llama_vocab_eos(vocab)) {
                 break;  // End of sequence
@@ -195,21 +338,28 @@ QString LLMProcessor::generateContent(const QString& prompt)
             }
             
             // Process next token
-            llama_batch batch_next = llama_batch_init(1, 0, 1);
-            batch_next.token[0] = token;
-            batch_next.pos[0] = tokens.size() + i;
-            batch_next.seq_id[0] = 0;
-            batch_next.logits[0] = true;
-            
-            if (llama_decode(m_impl->context, batch_next)) {
-                emit error("Failed to process token");
-                llama_batch_free(batch_next);
-                break;
+            llama_batch batch = llama_batch_init(1, 0, 1);
+            if (!batch.token) {
+                emit error("Failed to allocate batch");
+                llama_sampler_free(smpl);
+                return QString();
             }
-            llama_batch_free(batch_next);
+            
+            batch.token[0] = token;
+            batch.pos[0] = n_tokens + i;
+            batch.seq_id[0] = 0;
+            batch.logits[0] = true;
+            
+            if (llama_decode(m_impl->context, batch)) {
+                emit error("Failed to process token");
+                llama_sampler_free(smpl);
+                llama_batch_free(batch);
+                return QString();
+            }
+            llama_batch_free(batch);
         }
         
-        llama_batch_free(batch);
+        llama_sampler_free(smpl);
         return QString::fromStdString(response);
     } catch (const std::exception& e) {
         emit error(QString("Error generating content: %1").arg(e.what()));

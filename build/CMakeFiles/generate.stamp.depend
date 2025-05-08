@@ -2,7 +2,6 @@
 C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeCXXInformation.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeCommonLanguageInclude.cmake
-C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeDependentOption.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeFindDependencyMacro.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeGenericSystem.cmake
 C:/Program Files/CMake/share/cmake-4.0/Modules/CMakeInitializeConfigs.cmake
@@ -41,7 +40,6 @@ C:/Projects/audio-to-brief-notes/build/CMakeFiles/4.0.1/CMakeCXXCompiler.cmake
 C:/Projects/audio-to-brief-notes/build/CMakeFiles/4.0.1/CMakeRCCompiler.cmake
 C:/Projects/audio-to-brief-notes/build/CMakeFiles/4.0.1/CMakeSystem.cmake
 C:/Projects/audio-to-brief-notes/resources/resources.qrc
-C:/Projects/audio-to-brief-notes/vcpkg/scripts/buildsystems/vcpkg.cmake
 C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/FindWrapAtomic.cmake
 C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/FindWrapVulkanHeaders.cmake
 C:/Qt/6.6.3/msvc2019_64/lib/cmake/Qt6/Qt6Config.cmake

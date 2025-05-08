@@ -11,6 +11,9 @@
 #include "mainwindow.h"
 
 int main(int argc, char *argv[]) {
+    // Enable debug output
+    qDebug() << "Starting TextMaster application...";
+    
     QApplication app(argc, argv);
     
     // Set application information
@@ -27,8 +30,10 @@ int main(int argc, char *argv[]) {
         appDir.mkdir("resources");
     }
     
+    qDebug() << "Creating main window...";
     MainWindow mainWindow;
     mainWindow.show();
+    qDebug() << "Main window shown";
     
     return app.exec();
 }

@@ -2,10 +2,10 @@
 #define HOME_PAGE_H
 
 #include <QWidget>
-#include <QTextEdit>
-#include <QLabel>
-#include <QPushButton>
-#include <QComboBox>
+
+namespace Ui {
+class HomePage;
+}
 
 class HomePage : public QWidget {
     Q_OBJECT
@@ -21,30 +21,15 @@ public:
 signals:
     void importFileClicked();
     void analyzeTextClicked();
-    void flashcardsClicked();
-    void quizClicked();
-    void enumerationsClicked();
     void wordCountChanged(int count);
 
 private slots:
     void onTextChanged();
     void onImportClicked();
     void onAnalyzeClicked();
-    void onFlashcardsClicked();
-    void onQuizClicked();
-    void onEnumerationsClicked();
 
 private:
-    void setupUI();
-
-    QTextEdit *textInput;
-    QLabel *wordCountLabel;
-    QPushButton *importButton;
-    QPushButton *analyzeButton;
-    QPushButton *flashcardsButton;
-    QPushButton *quizButton;
-    QPushButton *enumerationsButton;
-    QComboBox *modeComboBox;
+    Ui::HomePage *ui;
 };
 
 #endif // HOME_PAGE_H 
