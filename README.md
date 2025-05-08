@@ -1,6 +1,6 @@
 # TextMaster
 
-TextMaster is an advanced AI-powered application that converts audio, text, and images into concise, well-organized notes. Inspired by tools like Algor Education and HyperWrite's Smart Notes Creator, TextMaster provides powerful summarization capabilities in a desktop application.
+TextMaster is an application that converts  text into concise, well-organized notes. Inspired by tools like Algor Education and HyperWrite's Smart Notes Creator, TextMaster provides powerful summarization capabilities in a desktop application.
 
 ## Features
 
