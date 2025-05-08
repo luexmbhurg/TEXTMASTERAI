@@ -4,94 +4,90 @@
 import sys
 import os
 import traceback
-import json
+import msgpack
 import re
-import tempfile
-import warnings
+import cProfile
+import pstats
+import io
 from typing import List, Dict, Any, Union, Optional, Tuple
 from collections import Counter
 
 # Suppress specific warnings
-warnings.filterwarnings("ignore", category=FutureWarning, module="transformers")
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 # Add debug logging
 def debug_log(message: str) -> None:
-    print(f"DEBUG: {message}", file=sys.stderr)
+    with open('debug_output.txt', 'a') as f:
+        f.write(f"DEBUG: {message}\n")
+
+def error_log(message: str) -> None:
+    with open('debug_output.txt', 'a') as f:
+        f.write(f"ERROR: {message}\n")
+
+def status_log(message: str) -> None:
+    with open('debug_output.txt', 'a') as f:
+        f.write(f"STATUS: {message}\n")
+
+def profile_function(func):
+    """Decorator to profile function execution time."""
+    def wrapper(*args, **kwargs):
+        profiler = cProfile.Profile()
+        result = profiler.runcall(func, *args, **kwargs)
+        stream = io.StringIO()
+        stats = pstats.Stats(profiler, stream=stream)
+        stats.sort_stats('cumulative')
+        stats.print_stats()
+        
+        with open('profiling_results.txt', 'w') as f:
+            f.write(stream.getvalue())
+        
+        return result
+    return wrapper
 
 try:
     import spacy
     from spacy.lang.en import English
     from spacy.tokens import Doc
-    import numpy as np
-    from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
     debug_log("Successfully imported required libraries")
 except ImportError as e:
-    debug_log(f"Import error: {str(e)}")
+    error_log(f"Import error: {str(e)}")
     # If running as standalone, attempt to install dependencies
     import subprocess
-    print("Installing required dependencies...", file=sys.stderr)
+    status_log("Installing required dependencies...")
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "spacy", "numpy", "transformers", "torch"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "spacy", "msgpack"])
         subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
         debug_log("Successfully installed dependencies")
         
         import spacy
         from spacy.lang.en import English
         from spacy.tokens import Doc
-        import numpy as np
-        from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
     except Exception as e:
-        debug_log(f"Failed to install dependencies: {str(e)}")
-        print(json.dumps({"error": f"Failed to install dependencies: {str(e)}"}))
+        error_log(f"Failed to install dependencies: {str(e)}")
+        sys.stdout.buffer.write(msgpack.packb({"error": f"Failed to install dependencies: {str(e)}"}))
         sys.exit(1)
-
-# Constants
-MAX_CHUNK_SIZE = 5000  # Maximum characters per chunk
-CHUNK_OVERLAP = 500    # Overlap between chunks
 
 # Load spaCy model
 try:
+    status_log("Loading spaCy model...")
     nlp = spacy.load("en_core_web_sm")
     debug_log("Successfully loaded spaCy model")
 except OSError as e:
-    debug_log(f"Failed to load spaCy model: {str(e)}")
+    error_log(f"Failed to load spaCy model: {str(e)}")
     # Download the model if not available
     import subprocess
     try:
+        status_log("Downloading spaCy model...")
         subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
         nlp = spacy.load("en_core_web_sm")
         debug_log("Successfully downloaded and loaded spaCy model")
     except Exception as e:
-        debug_log(f"Failed to download spaCy model: {str(e)}")
-        print(json.dumps({"error": f"Failed to download spaCy model: {str(e)}"}))
+        error_log(f"Failed to download spaCy model: {str(e)}")
+        sys.stdout.buffer.write(msgpack.packb({"error": f"Failed to download spaCy model: {str(e)}"}))
         sys.exit(1)
 
-# Initialize models
-summarizer = None
-sentiment_analyzer = None
-
-def get_summarizer():
-    model_name = "facebook/bart-large-cnn"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-    return pipeline("summarization", model=model, tokenizer=tokenizer)
-
-def get_sentiment_analyzer():
-    return pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
-
-def calculate_optimal_length(text: str) -> int:
-    """Calculate optimal summary length based on input text length."""
-    word_count = len(text.split())
-    # For very short texts, use a higher ratio
-    if word_count < 50:
-        return min(50, word_count)
-    # For medium texts, use about 1/3 of the length
-    elif word_count < 200:
-        return max(50, word_count // 3)
-    # For longer texts, use about 1/4 of the length
-    else:
-        return max(100, word_count // 4)
-
+@profile_function
 def clean_text(text: str) -> str:
     """Clean and format text by removing extra whitespace and normalizing punctuation."""
     # Remove extra whitespace
@@ -101,51 +97,7 @@ def clean_text(text: str) -> str:
     text = re.sub(r'^\s*(\d+)\.\s*', r'\1. ', text, flags=re.MULTILINE)
     return text
 
-def extract_topics(doc: Doc, num_topics: int = 5) -> List[Dict[str, Any]]:
-    """Extract main topics from the document using noun phrases and named entities."""
-    # Collect noun phrases and their frequencies
-    noun_phrases = []
-    for chunk in doc.noun_chunks:
-        if not all(token.is_stop for token in chunk):
-            noun_phrases.append(chunk.text.lower())
-    
-    # Collect named entities
-    entities = [ent.text.lower() for ent in doc.ents if ent.label_ in ['ORG', 'PRODUCT', 'GPE', 'EVENT', 'TECH']]
-    
-    # Combine and count frequencies
-    all_topics = noun_phrases + entities
-    topic_counter = Counter(all_topics)
-    
-    # Get the most common topics
-    top_topics = []
-    for topic, count in topic_counter.most_common(num_topics):
-        # Get the sentiment of the sentences containing this topic
-        topic_sentences = [sent.text for sent in doc.sents if topic in sent.text.lower()]
-        topic_sentiment = "neutral"
-        if topic_sentences:
-            sentiment = analyze_sentiment(" ".join(topic_sentences[:3]))  # Analyze first 3 sentences
-            topic_sentiment = sentiment["label"]
-        
-        top_topics.append({
-            "topic": topic,
-            "frequency": count,
-            "sentiment": topic_sentiment
-        })
-    
-    return top_topics
-
-def analyze_sentiment(text: str) -> Dict[str, Any]:
-    """Analyze the sentiment of the text."""
-    global sentiment_analyzer
-    if sentiment_analyzer is None:
-        sentiment_analyzer = get_sentiment_analyzer()
-    
-    result = sentiment_analyzer(text)[0]
-    return {
-        "label": result["label"].lower(),
-        "score": round(result["score"], 3)
-    }
-
+@profile_function
 def extract_key_points(doc: Doc, top_n: int = 10) -> List[str]:
     """Extract the most important points from a document."""
     points = set()  # Use a set to avoid duplicates
@@ -193,368 +145,80 @@ def extract_key_points(doc: Doc, top_n: int = 10) -> List[str]:
     # Convert set to list and sort by length (shorter points first)
     return sorted(list(points), key=len)
 
-def extract_key_concepts(doc: Doc) -> List[Dict[str, Any]]:
-    """Extract key concepts and their definitions from the document."""
-    concepts = []
-    current_concept = None
-    current_definition = []
-    
-    # Common definition patterns
-    definition_patterns = [
-        r"([A-Za-z0-9\s]+)\s+(?:is|are)\s+(?:defined as|refers to|means|known as)\s+(.+)",
-        r"([A-Za-z0-9\s]+)\s+(?:is|are)\s+(?:a|an)\s+(.+)",
-        r"([A-Za-z0-9\s]+)\s+(?:is|are)\s+(.+)",
-        r"([A-Za-z0-9\s]+)\s*:\s*(.+)"
-    ]
-    
-    # First pass: Look for explicit definitions
-    for sent in doc.sents:
-        text = sent.text.strip()
-        for pattern in definition_patterns:
-            matches = re.finditer(pattern, text, re.IGNORECASE)
-            for match in matches:
-                concept = match.group(1).strip()
-                definition = match.group(2).strip()
-                # Clean up the concept and definition
-                concept = re.sub(r'^\d+\.\s*', '', concept)  # Remove numbering
-                definition = re.sub(r'\.$', '', definition)  # Remove trailing period
-                
-                if len(concept.split()) <= 5 and len(definition.split()) >= 3:  # Reasonable length checks
-                    concepts.append({
-                        "concept": concept,
-                        "definition": definition,
-                        "context": text
-                    })
-    
-    # Second pass: Look for implicit definitions in numbered lists
-    for sent in doc.sents:
-        text = sent.text.strip()
-        # Check for numbered list items
-        if re.match(r'^\d+\.\s+', text):
-            # Try to split into concept and definition
-            parts = re.split(r'\.\s+', text, 1)
-            if len(parts) == 2:
-                concept = parts[0].replace(r'^\d+\.\s*', '').strip()
-                definition = parts[1].strip()
-                if len(concept.split()) <= 5 and len(definition.split()) >= 3:
-                    concepts.append({
-                        "concept": concept,
-                        "definition": definition,
-                        "context": text
-                    })
-    
-    # Remove duplicates while preserving order
-    seen = set()
-    unique_concepts = []
-    for concept in concepts:
-        key = (concept["concept"].lower(), concept["definition"].lower())
-        if key not in seen:
-            seen.add(key)
-            unique_concepts.append(concept)
-    
-    return unique_concepts
-
-def extract_formulas(doc: Doc) -> List[Dict[str, Any]]:
-    """Simple formula extraction focusing only on basic equations."""
-    formulas = []
-    for sent in doc.sents:
-        # Look for basic equations with = sign
-        matches = re.finditer(r'([A-Za-z0-9]+)\s*=\s*([A-Za-z0-9+\-*/^()]+)', sent.text)
-        for match in matches:
-            formula = match.group()
-            formulas.append({
-                "formula": formula,
-                "context": sent.text
-            })
-    return formulas
-
-def extract_practice_questions(doc: Doc) -> List[Dict[str, Any]]:
-    """Extract potential practice questions from the document."""
-    questions = []
-    question_indicators = ["what", "how", "why", "explain", "describe", "calculate"]
-    
-    for sent in doc.sents:
-        # Check if sentence starts with a question indicator
-        if any(sent.text.lower().startswith(indicator) for indicator in question_indicators):
-            questions.append({
-                "question": sent.text,
-                "type": "conceptual" if any(ind in sent.text.lower() for ind in ["what", "how", "why"]) else "practical"
-            })
-    
-    return questions
-
+@profile_function
 def format_bullet_points(points: List[str], indent: str = "") -> str:
-    """Format a list of points into a nicely formatted string with bullet points."""
-    formatted_points = []
-    current_section = None
+    """Format a list of points into bullet points."""
+    if not points:
+        return ""
     
+    formatted = []
     for point in points:
-        clean_point = point.strip()
-        if not clean_point:
-            continue
-            
-        # Handle numbered points
-        if re.match(r'^\d+\.', clean_point):
-            number = re.match(r'^(\d+)\.', clean_point).group(1)
-            content = re.sub(r'^\d+\.\s*', '', clean_point)
-            if current_section:
-                formatted_points.append(f"{indent}  {number}. {content}")
-            else:
-                formatted_points.append(f"{indent}• {number}. {content}")
-            continue
-        
-        # Handle nested points
-        if ':' in clean_point and '\n' not in clean_point:
-            main_point, sub_points = clean_point.split(':', 1)
-            # Format main point
-            if current_section:
-                formatted_points.append(f"{indent}  • {main_point.strip()}:")
-            else:
-                formatted_points.append(f"{indent}• {main_point.strip()}:")
-            # Format sub-points with additional indentation
-            if sub_points.strip():
-                sub_items = [s.strip() for s in sub_points.split(',') if s.strip()]
-                for sub_item in sub_items:
-                    formatted_points.append(f"{indent}    - {sub_item}")
-        else:
-            # Regular bullet point
-            if current_section:
-                formatted_points.append(f"{indent}  • {clean_point}")
-            else:
-                formatted_points.append(f"{indent}• {clean_point}")
+        # Clean the point
+        point = clean_text(point)
+        # Add bullet point
+        formatted.append(f"{indent}• {point}")
     
-    return "\n".join(formatted_points)
+    return "\n".join(formatted)
 
+@profile_function
 def generate_concise_notes(text: str, mode: str = "brief") -> Dict[str, Any]:
-    """Generate concise notes from input text with additional analysis."""
-    global summarizer
-    if summarizer is None:
-        summarizer = get_summarizer()
-    
-    # Process text with spaCy
+    """Generate concise notes from the input text based on the specified mode."""
+    try:
+        status_log("Processing text...")
     doc = nlp(text)
     
-    # Calculate optimal summary length
-    max_length = calculate_optimal_length(text)
-    min_length = max(30, max_length // 2)
-    
-    # Extract study-specific elements
-    key_concepts = extract_key_concepts(doc)
-    formulas = extract_formulas(doc)  # Simplified formula extraction
-    practice_questions = extract_practice_questions(doc)
-    topics = extract_topics(doc)
-    
-    # Generate content based on mode
-    if mode == "brief":
-        # Generate a brief summary
-        summary = summarizer(
-            text, 
-            max_length=max_length, 
-            min_length=min_length, 
-            do_sample=False,
-            num_beams=4,
-            length_penalty=2.0
-        )[0]['summary_text']
-        
-        return {
-            "summary": clean_text(summary),
-            "key_concepts": key_concepts[:5],  # Top 5 concepts
-            "formulas": formulas,
-            "topics": topics,
-            "word_count": len(text.split()),
-            "success": True
-        }
-        
-    elif mode == "detailed":
-        # Generate a detailed summary with key points
-        summary = summarizer(
-            text, 
-            max_length=max_length, 
-            min_length=min_length, 
-            do_sample=False,
-            num_beams=4,
-            length_penalty=2.0
-        )[0]['summary_text']
-        
+        # Extract key points
+        status_log("Extracting key points...")
         key_points = extract_key_points(doc)
-        formatted_points = format_bullet_points(key_points)
         
-        return {
-            "summary": clean_text(summary),
-            "key_points": formatted_points,
-            "key_concepts": key_concepts,
-            "formulas": formulas,
-            "practice_questions": practice_questions,
-            "topics": topics,
-            "word_count": len(text.split()),
-            "success": True
-        }
+        # Format based on mode
+        if mode == "bullet_points":
+            formatted_text = format_bullet_points(key_points)
+        else:
+            # For brief and detailed modes, join points with newlines
+            formatted_text = "\n".join(key_points)
         
-    elif mode == "bullet_points":
-        # Generate bullet points only
-        key_points = extract_key_points(doc)
-        formatted_points = format_bullet_points(key_points)
-        
-        return {
-            "key_points": formatted_points,
-            "key_concepts": key_concepts,
-            "formulas": formulas,
-            "practice_questions": practice_questions,
-            "topics": topics,
-            "word_count": len(text.split()),
+        # Create result dictionary with expected field names
+        result = {
+            "summary": formatted_text,
+            "key_concepts": "\n".join([point for point in key_points if len(point.split()) <= 5]),
+            "topics": "\n".join([point for point in key_points if len(point.split()) > 5]),
             "success": True
         }
     
-    else:
-        return {"error": "Invalid mode selected"}
-
-def split_into_chunks(text: str, max_size: int = MAX_CHUNK_SIZE, overlap: int = CHUNK_OVERLAP) -> List[str]:
-    """Split text into overlapping chunks."""
-    if len(text) <= max_size:
-        return [text]
-    
-    chunks = []
-    start = 0
-    while start < len(text):
-        end = min(start + max_size, len(text))
-        # Try to find a good breaking point (sentence end)
-        if end < len(text):
-            # Look for sentence end within last 200 characters
-            sentence_end = text.rfind('.', end - 200, end)
-            if sentence_end != -1:
-                end = sentence_end + 1
+        status_log("Processing complete")
+        return result
         
-        chunks.append(text[start:end])
-        start = end - overlap
-    
-    return chunks
-
-def process_chunk(chunk: str, mode: str) -> Dict[str, Any]:
-    """Process a single chunk of text."""
-    try:
-        doc = nlp(chunk)
-        return generate_concise_notes(chunk, mode)
     except Exception as e:
+        error_log(f"Error in generate_concise_notes: {str(e)}")
+        error_log(traceback.format_exc())
         return {
             "error": str(e),
-            "chunk": chunk[:100] + "..." if len(chunk) > 100 else chunk
-        }
-
-def merge_results(results: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Merge results from multiple chunks."""
-    merged = {
-        "summary": "",
-        "key_points": [],
-        "topics": [],
-        "concepts": [],
-        "formulas": [],
-        "practice_questions": []
-    }
-    
-    # Track seen items to avoid duplicates
-    seen_points = set()
-    seen_concepts = set()
-    seen_formulas = set()
-    seen_questions = set()
-    
-    for result in results:
-        if "error" in result:
-            continue
-            
-        # Merge summaries
-        if "summary" in result:
-            merged["summary"] += " " + result["summary"]
-        
-        # Merge key points
-        if "key_points" in result:
-            for point in result["key_points"]:
-                if point not in seen_points:
-                    seen_points.add(point)
-                    merged["key_points"].append(point)
-        
-        # Merge topics
-        if "topics" in result:
-            merged["topics"].extend(result["topics"])
-        
-        # Merge concepts
-        if "concepts" in result:
-            for concept in result["concepts"]:
-                key = (concept["concept"].lower(), concept["definition"].lower())
-                if key not in seen_concepts:
-                    seen_concepts.add(key)
-                    merged["concepts"].append(concept)
-        
-        # Merge formulas
-        if "formulas" in result:
-            for formula in result["formulas"]:
-                if formula["formula"] not in seen_formulas:
-                    seen_formulas.add(formula["formula"])
-                    merged["formulas"].append(formula)
-        
-        # Merge practice questions
-        if "practice_questions" in result:
-            for question in result["practice_questions"]:
-                if question["question"] not in seen_questions:
-                    seen_questions.add(question["question"])
-                    merged["practice_questions"].append(question)
-    
-    # Clean up merged results
-    merged["summary"] = clean_text(merged["summary"].strip())
-    merged["key_points"] = list(seen_points)
-    merged["topics"] = list({topic["topic"]: topic for topic in merged["topics"]}.values())
-    
-    return merged
-
-def process_text(input_text: str, mode: str = "brief") -> Dict[str, Any]:
-    """Main text processing function with chunking support."""
-    try:
-        # Clean input text
-        input_text = clean_text(input_text)
-        
-        # Split into chunks if necessary
-        if len(input_text) > MAX_CHUNK_SIZE:
-            chunks = split_into_chunks(input_text)
-            results = [process_chunk(chunk, mode) for chunk in chunks]
-            return merge_results(results)
-        else:
-            return process_chunk(input_text, mode)
-    except Exception as e:
-        return {
-            "error": f"Error processing text: {str(e)}",
-            "traceback": traceback.format_exc()
+            "success": False
         }
 
 def main():
     """Main entry point for the script."""
     try:
-        debug_log("Starting main process")
-        # Read input from stdin
-        input_text = sys.stdin.read()
-        debug_log(f"Received input text of length: {len(input_text)}")
-        
-        if not input_text:
-            debug_log("No input text provided")
-            print(json.dumps({"error": "No input text provided"}))
-            sys.exit(1)
+        # Read input from stdin as MessagePack
+        input_data = msgpack.unpackb(sys.stdin.buffer.read())
+        text = input_data.get(b"text", b"").decode('utf-8')
+        mode = input_data.get(b"mode", b"brief").decode('utf-8')
         
         # Process the text
-        debug_log("Starting text processing")
-        result = process_text(input_text)
-        debug_log("Text processing completed")
+        result = generate_concise_notes(text, mode)
         
-        # Output the result
-        debug_log("Sending result back")
-        print(json.dumps(result))
-        debug_log("Process completed successfully")
+        # Write the MessagePack result directly to stdout
+        sys.stdout.buffer.write(msgpack.packb(result))
         
     except Exception as e:
-        debug_log(f"Error in main process: {str(e)}")
-        debug_log(f"Traceback: {traceback.format_exc()}")
-        print(json.dumps({
-            "error": str(e),
-            "traceback": traceback.format_exc()
+        error_msg = f"Error in main: {str(e)}\nTraceback: {traceback.format_exc()}"
+        error_log(error_msg)
+        sys.stdout.buffer.write(msgpack.packb({
+            "error": error_msg,
+            "success": False
         }))
-        sys.exit(1)
 
 if __name__ == "__main__":
     main()
+

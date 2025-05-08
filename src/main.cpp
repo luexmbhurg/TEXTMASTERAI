@@ -9,7 +9,6 @@
 #include <QDir>
 #include <QDebug>
 #include "mainwindow.h"
-#include "text_processor.h"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
@@ -26,21 +25,6 @@ int main(int argc, char *argv[]) {
     QDir appDir(QCoreApplication::applicationDirPath());
     if (!appDir.exists("resources")) {
         appDir.mkdir("resources");
-    }
-    
-    // Extract Python script if it doesn't exist
-    QString pythonScriptPath = appDir.absolutePath() + "/resources/nlp_processor.py";
-    if (!QFile::exists(pythonScriptPath)) {
-        QFile resourceFile(":/resources/nlp_processor.py");
-        if (resourceFile.open(QIODevice::ReadOnly)) {
-            QByteArray scriptContent = resourceFile.readAll();
-            QFile outputFile(pythonScriptPath);
-            if (outputFile.open(QIODevice::WriteOnly)) {
-                outputFile.write(scriptContent);
-                outputFile.close();
-            }
-            resourceFile.close();
-        }
     }
     
     MainWindow mainWindow;

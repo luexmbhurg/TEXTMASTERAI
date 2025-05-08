@@ -25,20 +25,42 @@ dist-ssr
 
 # Build directories
 build/
-cmake-build-*/
-x64/
 Debug/
 Release/
+x64/
+x86/
 
 # Qt Creator files
 *.pro.user
 *.pro.user.*
+*.qmake.stash
+*.moc
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+Makefile*
+*build-*
+*.qm
+*.prl
+*.lib
+*.dll
+*.exe
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Qt specific
+*.pro.user
+*.pro.user.*
+*.qmake.stash
+*.moc
+moc_*.cpp
+qrc_*.cmake
+ui_*.h
+Makefile*
+*build-*
+*.qm
+*.prl
+*.lib
+*.dll
+*.exe
 
 # Precompiled Headers
 *.gch
@@ -75,6 +97,7 @@ cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
+_deps
 
 # IDE files
 .vscode/
@@ -103,3 +126,21 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.filters
+*.vcxproj.user
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

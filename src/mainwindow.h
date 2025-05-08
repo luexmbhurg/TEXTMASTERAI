@@ -13,9 +13,19 @@
 #include <QStatusBar>
 #include <QListWidget>
 #include <QDateTime>
-#include <QProgressBar>
+#include <QJsonObject>
+#include "llm_processor.h"
+#include <QFutureWatcher>
+#include <QLineEdit>
 #include <QComboBox>
-#include "text_processor.h"
+#include "home_page.h"
+#include "flashcards_page.h"
+#include "quiz_page.h"
+#include "enumerations_page.h"
+
+namespace Ui {
+class MainWindow;
+}
 
 // Structure to store processing history
 struct ProcessingHistoryItem {
@@ -28,35 +38,55 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
     // Navigation
     void showHomePage();
-    void showLoadingPage();
     void showResultsPage();
     void showHistoryPage();
     
     // Button actions
     void onImportFileClicked();
-    void onLetsGoClicked();
-    void onGenerateQuizClicked();
-    void onGenerateFlashcardsClicked();
     void onDownloadClicked();
     void onCopyClicked();
     void onAboutAction();
-    void onCancelClicked();
     void onHistoryItemClicked(QListWidgetItem* item);
     
     // Text editing
     void updateWordCount();
+    
+    // AI Processing
+    void onAnalyzeTextClicked();
+    void onFlashcardsClicked();
+    void onQuizClicked();
+    void onEnumerationsClicked();
+    
+    // Flashcards
+    void onRevealDefinitionClicked();
+    void onPrevFlashcardClicked();
+    void onNextFlashcardClicked();
+    
+    // Quiz
+    void onQuizSubmitClicked();
+    
+    // LLM processing
+    void onStudyGuideGenerated(const QString& result);
+    void onFlashcardsGenerated(const QString& result);
+    void onQuizGenerated(const QString& result);
+    void onEnumerationsGenerated(const QString& result);
+    void onLLMStatusUpdate(const QString& status);
+    void onLLMError(const QString& error);
+
+    // New slots
+    void onGenerateQuizClicked();
+    void onGenerateFlashcardsClicked();
 
 private:
     void setupUI();
     void setupHeader();
     void createHomePage();
-    void createLoadingPage();
     void createResultsPage();
     void createHistoryPage();
     void setupStyles();
@@ -65,6 +95,17 @@ private:
     void addToHistory(const QString& inputText, const QString& result);
     void loadHistory();
     void saveHistory();
+    
+    // Initialize LLM
+    bool initializeLLM();
+    
+    // Process AI responses
+    void processFlashcardsResponse(const QString& response);
+    void processQuizResponse(const QString& response);
+    void processEnumerationsResponse(const QString& response);
+    
+    // LLM processor
+    LLMProcessor* llmProcessor;
 
     // Main container
     QStackedWidget *stackedWidget;
@@ -75,53 +116,45 @@ private:
     QLabel *titleLabel;
     QPushButton *profileButton;
 
-    // Home page widgets
-    QWidget *homePage;
-    QLabel *decoderLabel;
-    QFrame *inputFrame;
-    QTextEdit *textInput;
-    QLabel *wordCountLabel;
-    QPushButton *importButton;
-    QPushButton *letsGoButton;
-
-    // Loading page widgets
-    QWidget *loadingPage;
-    QLabel *loadingIcon;
-    QLabel *loadingLabel;
-    QLabel *progressLabel;
-    QProgressBar *progressBar;
-    QPushButton *cancelButton;
-    bool isCancelled;
-
-    // Results page widgets
-    QWidget *resultsPage;
-    QFrame *sidebarFrame;
-    QPushButton *homeButton;
-    QPushButton *generateQuizButton;
-    QPushButton *generateFlashcardsButton;
-    QPushButton *historyButton;
-    QFrame *contentFrame;
-    QLabel *resultsLabel;
-    QTextEdit *resultsText;
-    QPushButton *downloadButton;
-    QPushButton *copyButton;
-    QComboBox *modeComboBox;
+    // Pages
+    HomePage *homePage;
+    FlashcardsPage *flashcardsPage;
+    QuizPage *quizPage;
+    EnumerationsPage *enumerationsPage;
+    QWidget *historyPage;
 
     // History page widgets
-    QWidget *historyPage;
     QListWidget *historyList;
     QVector<ProcessingHistoryItem> processingHistory;
 
     // Status bar
     QStatusBar *statusBar;
 
+    // Debug output text area
+    QTextEdit *debugOutput;
+
+    // Results page widgets
+    QWidget *resultsPage;
+    QFrame *sidebarFrame;
+    QFrame *contentFrame;
+    QPushButton *homeButton;
+    QPushButton *generateQuizButton;
+    QPushButton *generateFlashcardsButton;
+    QPushButton *historyButton;
+    QPushButton *downloadButton;
+    QPushButton *copyButton;
+    QLabel *modeDisplayLabel;
+    QLabel *resultsLabel;
+    QTextEdit *resultsText;
+
     // Stylesheet strings
     QString getMainStyleSheet();
     QString getHeaderStyleSheet();
     QString getHomePageStyleSheet();
-    QString getLoadingPageStyleSheet();
     QString getResultsPageStyleSheet();
     QString getHistoryPageStyleSheet();
+
+    Ui::MainWindow *ui;
 };
 
 #endif // MAINWINDOW_H
