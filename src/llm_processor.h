@@ -1,12 +1,10 @@
 #ifndef LLMPROCESSOR_H
 #define LLMPROCESSOR_H
 
-#include <string>
-#include <memory>
-#include <QString>
 #include <QObject>
+#include <QString>
 #include <QFuture>
-#include <QPromise>
+#include <memory>
 
 class LLMProcessor : public QObject
 {
@@ -18,37 +16,35 @@ public:
 
     // Initialize the LLM model
     bool initialize(const QString& modelPath);
+    void cleanup();
 
-    // Different types of content generation
+    // Text processing functions
     QString generateStudyGuide(const QString& inputText);
     QString generateQuiz(const QString& inputText);
     QString generateFlashcards(const QString& inputText);
+    QString generateEnumerations(const QString& inputText);
     
     // Async versions
-    QFuture<QString> generateStudyGuideAsync(const QString& inputText);
-    QFuture<QString> generateQuizAsync(const QString& inputText);
-    QFuture<QString> generateFlashcardsAsync(const QString& inputText);
-    QFuture<QString> generateEnumerationsAsync(const QString& inputText);
+    QFuture<QString> generateStudyGuideAsync(const QString& input);
+    QFuture<QString> generateQuizAsync(const QString& input);
+    QFuture<QString> generateFlashcardsAsync(const QString& input);
+    QFuture<QString> generateEnumerationsAsync(const QString& input);
 
 signals:
-    void statusUpdate(const QString& status);
     void error(const QString& message);
+    void statusUpdate(const QString& status);
 
 private:
-    // Pointer to the implementation (PIMPL pattern)
-    class LLMProcessorImpl;
-    std::unique_ptr<LLMProcessorImpl> m_impl;
-    
-    // Format prompts for different types
-    QString formatStudyGuidePrompt(const QString& inputText);
-    QString formatQuizPrompt(const QString& inputText);
-    QString formatFlashcardsPrompt(const QString& inputText);
-    QString formatEnumerationsPrompt(const QString& inputText);
-    
-    // Core generation function
-    QString generateContent(const QString& prompt);
+    // Helper functions
+    QString processText(const QString& prompt);
+    QString formatStudyGuidePrompt(const QString& input);
+    QString formatQuizPrompt(const QString& input);
+    QString formatFlashcardsPrompt(const QString& input);
+    QString formatEnumerationsPrompt(const QString& input);
 
-    void cleanup();
+    // Implementation details
+    struct Impl;
+    std::unique_ptr<Impl> m_impl;
 };
 
 #endif // LLMPROCESSOR_H 

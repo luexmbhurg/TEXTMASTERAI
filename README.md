@@ -1,78 +1,68 @@
-# TextMaster
+# TextMaster AI
 
-TextMaster is an application that converts  text into concise, well-organized notes. Inspired by tools like Algor Education and HyperWrite's Smart Notes Creator, TextMaster provides powerful summarization capabilities in a desktop application.
+TextMaster AI is a powerful desktop application that uses AI to generate study materials from text input. It leverages the TinyLlama model to create comprehensive study guides, quizzes, flashcards, and enumerations.
 
 ## Features
 
-- **Multi-source Input**: Process text, audio recordings, and images
-- **Advanced AI Summarization**: Generate concise notes using state-of-the-art NLP
-- **Local LLM Support**: Run Gemma, Llama, or other LLMs directly from your device without API keys
-- **Customizable Output**: Choose between brief summaries, detailed notes, or bullet points
-- **Adjustable Parameters**: Control summary length and readability level
-- **User-friendly Interface**: Clean and intuitive Qt-based UI
+- Generate study guides from any text input
+- Create quizzes with multiple choice questions
+- Generate flashcards for quick review
+- Create enumerations of key points
+- Modern Qt-based user interface
+- Local AI processing using llama.cpp
+- History tracking of generated content
 
-## Technical Architecture
+## Requirements
 
-- **C++ Core**: Performance-optimized main engine
-- **Python NLP Backend**: Powerful text processing using spaCy and Hugging Face Transformers
-- **llama.cpp Integration**: Run local LLMs like Gemma directly in the application
-- **Qt UI**: Professional desktop experience
-- **Windows Compatibility**: Packaged as a standalone .exe for Windows
+- Windows 10 or later
+- CMake 3.15 or later
+- Qt 6.5 or later
+- Visual Studio 2019 or later with C++17 support
+- At least 4GB of RAM
+- 1GB of free disk space
 
-## Building from Source
-
-### Prerequisites
-
-- CMake (3.20 or higher)
-- Qt 6 (with Core, Widgets, and Concurrent modules)
-- vcpkg for dependency management
-- C++ compiler supporting C++17
-
-### Build Instructions
+## Setup
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/textmaster.git
-   cd textmaster
-   ```
+```bash
+git clone https://github.com/yourusername/textmaster-ai.git
+cd textmaster-ai
+```
 
-2. Use the provided build script for Windows:
-   ```
-   build_with_gemma.bat
-   ```
+2. Build the project:
+```bash
+mkdir build
+cd build
+cmake ..
+cmake --build . --config Release
+```
 
-   This will:
-   - Configure the project with CMake
-   - Build the application
-   - Create a models directory
-
-3. Download a model:
-   - Get a GGUF model file from [Hugging Face](https://huggingface.co/google/gemma-2b-it-gguf/tree/main)
-   - Place it in the `build\Release\models` directory
-   - We recommend starting with `gemma-2b-it-q4_0.gguf` (approximately 2GB)
+3. Download the TinyLlama model:
+- Download the Q4_K_M quantized version of TinyLlama from Hugging Face
+- Place it in the `build/Release/models` directory
 
 4. Run the application:
-   ```
-   .\build\Release\LessonDecoder.exe
-   ```
+```bash
+cd Release
+./TextMaster.exe
+```
 
-## Using Local LLMs
+## Usage
 
-TextMaster now supports using local large language models for high-quality study guide generation:
-
-1. **Automatic Model Detection**: The app will look for model files in the `models` directory
-2. **Manual Selection**: If no model is found, you'll be prompted to select one
-3. **Study Guide Generation**: Enter your text and click "LET'S GO!" to generate a comprehensive study guide
-4. **Fallback Mode**: If the local LLM fails, the app will fall back to the Python NLP processor
+1. Launch TextMaster AI
+2. Enter or paste your text in the input area
+3. Choose the type of study material you want to generate:
+   - Study Guide
+   - Quiz
+   - Flashcards
+   - Enumerations
+4. Click "Generate" and wait for the AI to process your text
+5. View and save your generated study materials
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License
 
-## Acknowledgments
+## Contributing
 
-- [llama.cpp](https://github.com/ggml-org/llama.cpp) for local LLM integration
-- [Gemma](https://blog.google/technology/developers/gemma-open-models/) from Google for the open LLM
-- [spaCy](https://spacy.io/) for natural language processing
-- [Hugging Face Transformers](https://huggingface.co/transformers/) for AI models
-- [Qt](https://www.qt.io/) for the user interface framework
+Contributions are welcome! Please feel free to submit a Pull Request.

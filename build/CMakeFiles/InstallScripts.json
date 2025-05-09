@@ -1,7 +1,12 @@
 {
 	"InstallScripts" : 
 	[
-		"C:/Projects/audio-to-brief-notes/build/cmake_install.cmake"
+		"C:/Projects/audio-to-brief-notes/build/cmake_install.cmake",
+		"C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/cmake_install.cmake",
+		"C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/ggml/cmake_install.cmake",
+		"C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/ggml/src/cmake_install.cmake",
+		"C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/ggml/src/ggml-cpu/cmake_install.cmake",
+		"C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/src/cmake_install.cmake"
 	],
 	"Parallel" : false
 }

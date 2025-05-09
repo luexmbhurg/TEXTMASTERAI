@@ -74,16 +74,16 @@ QLabel {
 }</string>
       </property>
       <layout class="QHBoxLayout" name="headerLayout">
-       <item>
-        <widget class="QLabel" name="titleLabel">
-         <property name="text">
-          <string>TEXTMASTER</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
+         <item>
+          <widget class="QLabel" name="titleLabel">
+           <property name="text">
+            <string>TEXTMASTER</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
       </layout>
      </widget>
     </item>
@@ -102,14 +102,14 @@ QLabel {
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QTextEdit" name="textInput">
-           <property name="placeholderText">
-            <string>Enter or paste your text here...</string>
-           </property>
-          </widget>
-         </item>
-         <item>
+             <item>
+              <widget class="QTextEdit" name="textInput">
+               <property name="placeholderText">
+                <string>Enter or paste your text here...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
           <layout class="QHBoxLayout" name="buttonLayout">
            <item>
             <widget class="QPushButton" name="analyzeButton">
@@ -140,32 +140,32 @@ QLabel {
             </widget>
            </item>
           </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
        <widget class="QStackedWidget" name="contentStack">
         <widget class="QWidget" name="flashcardsPage">
          <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
+           <item>
            <widget class="QLabel" name="termLabel">
-            <property name="text">
+               <property name="text">
              <string>Term</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
+               </property>
+              </widget>
+             </item>
+             <item>
            <widget class="QPushButton" name="revealButton">
-            <property name="text">
+                <property name="text">
              <string>Reveal Definition</string>
-            </property>
-           </widget>
-          </item>
-          <item>
+             </property>
+            </widget>
+           </item>
+           <item>
            <widget class="QLabel" name="definitionLabel">
             <property name="text">
              <string>Definition will appear here</string>
@@ -175,42 +175,42 @@ QLabel {
             </property>
             <property name="visible">
              <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
+             </property>
+            </widget>
+           </item>
+           <item>
            <layout class="QHBoxLayout" name="navigationLayout">
-            <item>
+             <item>
              <widget class="QPushButton" name="prevButton">
               <property name="text">
                <string>Previous</string>
-              </property>
-             </widget>
-            </item>
-            <item>
+               </property>
+              </widget>
+             </item>
+             <item>
              <widget class="QPushButton" name="nextButton">
               <property name="text">
                <string>Next</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
         <widget class="QWidget" name="quizPage">
          <layout class="QVBoxLayout" name="verticalLayout_4">
-          <item>
+        <item>
            <widget class="QLabel" name="questionLabel">
-            <property name="text">
+          <property name="text">
              <string>Question</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
            <widget class="QLineEdit" name="answerInput">
             <property name="placeholderText">
              <string>Enter your answer...</string>
@@ -231,12 +231,12 @@ QLabel {
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
+          </property>
+         </widget>
+        </item>
+        <item>
            <widget class="QLabel" name="feedbackLabel">
-            <property name="text">
+          <property name="text">
              <string>Feedback will appear here</string>
             </property>
             <property name="alignment">
@@ -244,12 +244,12 @@ QLabel {
             </property>
             <property name="visible">
              <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
       </item>
      </layout>
     </item>

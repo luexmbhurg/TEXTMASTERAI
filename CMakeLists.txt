@@ -20,6 +20,18 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOUIC_SEARCH_PATHS ${CMAKE_CURRENT_SOURCE_DIR}/forms)
 
+# llama.cpp configuration
+set(LLAMA_STATIC ON CACHE BOOL "Build llama.cpp as static library" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
+set(LLAMA_NATIVE OFF CACHE BOOL "Build with native CPU optimizations" FORCE)
+set(LLAMA_AVX OFF CACHE BOOL "Enable AVX" FORCE)
+set(LLAMA_AVX2 ON CACHE BOOL "Enable AVX2" FORCE)
+set(LLAMA_FMA ON CACHE BOOL "Enable FMA" FORCE)
+set(LLAMA_F16C ON CACHE BOOL "Enable F16C" FORCE)
+
+# Add llama.cpp subdirectory
+add_subdirectory(llama.cpp/llama.cpp-master)
+
 # Add source files
 set(SOURCES
     src/main.cpp
@@ -29,6 +41,7 @@ set(SOURCES
     src/flashcards_page.cpp
     src/quiz_page.cpp
     src/enumerations_page.cpp
+    src/pages/results_page.cpp
 )
 
 # Add header files
@@ -39,11 +52,18 @@ set(HEADERS
     src/flashcards_page.h
     src/quiz_page.h
     src/enumerations_page.h
+    src/pages/results_page.h
 )
 
 # Add UI files
 set(UI_FILES
     forms/mainwindow.ui
+    forms/homepage.ui
+    forms/quizpage.ui
+    forms/flashcardspage.ui
+    forms/enumerationspage.ui
+    forms/historypage.ui
+    forms/resultspage.ui
 )
 
 # Add resources
@@ -54,12 +74,14 @@ set(RESOURCES
 # Create executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${UI_FILES} ${RESOURCES})
 
-# Link libraries
+# Link against static libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    Qt::Core
-    Qt::Gui
-    Qt::Widgets
-    Qt::Concurrent
+    llama
+    ggml
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Gui
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Concurrent
 )
 
 # Set include directories
@@ -68,6 +90,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/forms
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/resources
+    ${CMAKE_CURRENT_SOURCE_DIR}/llama.cpp/llama.cpp-master/src
 )
 
 # Install rules
@@ -75,78 +98,71 @@ install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION bin
 )
 
-# Copy resources to build directory
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/resources
-    $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources
-)
-
-# Create models directory in build folder
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory
-    $<TARGET_FILE_DIR:${PROJECT_NAME}>/models
-)
-
-# Add a readme file to the models directory with download instructions
-file(WRITE ${CMAKE_BINARY_DIR}/model_readme.txt 
+# Create model README file
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/model_readme.txt 
 "Place your GGUF model files in this directory.
 
 Download models from:
-- https://huggingface.co/TheBloke/Mistral-7B-v0.1-GGUF
+- https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF
 
 Recommended model:
-- mistral-7b-v0.1.Q4_K_M.gguf
+- tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
 
-These files are large (4GB) and not included in the repository.")
+This file is ~638MB and not included in the repository.")
 
+# Add post-build commands to copy resources
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-    ${CMAKE_BINARY_DIR}/model_readme.txt
-    $<TARGET_FILE_DIR:${PROJECT_NAME}>/models/README.txt
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources
+    COMMENT "Copying resources"
+)
+
+# Add post-build commands to copy model files
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/models
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_SOURCE_DIR}/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_CURRENT_BINARY_DIR}/model_readme.txt
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/models/README.txt
+    COMMENT "Copying model files"
+)
+
+# Add post-build commands to copy Qt plugins
+if(WIN32)
+    set(QT_PLUGIN_PATH "${Qt6_DIR}/../../../plugins")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/platforms
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT_PLUGIN_PATH}/platforms/qwindows.dll"
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/platforms/
+        COMMENT "Copying Qt platform plugins"
     )
 
-# Copy Qt plugins
-if(WIN32)
-    if(Qt6_FOUND)
-        set(QT_PLUGINS_DIR "${Qt6_DIR}/../../../plugins")
-    else()
-        set(QT_PLUGINS_DIR "${Qt5_DIR}/../../../plugins")
-    endif()
-    
-    # Copy platform plugins
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/platforms
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${QT_PLUGINS_DIR}/platforms/qwindows.dll
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/platforms/
+        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/styles
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT_PLUGIN_PATH}/styles/qwindowsvistastyle.dll"
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/styles/
+        COMMENT "Copying Qt style plugins"
     )
-    
-    # Copy style plugins
+
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/styles
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${QT_PLUGINS_DIR}/styles/qwindowsvistastyle.dll
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/styles/
-    )
-    
-    # Copy image format plugins
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/imageformats
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${QT_PLUGINS_DIR}/imageformats/qgif.dll
-        ${QT_PLUGINS_DIR}/imageformats/qicns.dll
-        ${QT_PLUGINS_DIR}/imageformats/qico.dll
-        ${QT_PLUGINS_DIR}/imageformats/qjpeg.dll
-        ${QT_PLUGINS_DIR}/imageformats/qpdf.dll
-        ${QT_PLUGINS_DIR}/imageformats/qsvg.dll
-        ${QT_PLUGINS_DIR}/imageformats/qtga.dll
-        ${QT_PLUGINS_DIR}/imageformats/qtiff.dll
-        ${QT_PLUGINS_DIR}/imageformats/qwbmp.dll
-        ${QT_PLUGINS_DIR}/imageformats/qwebp.dll
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/imageformats/
+        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${PROJECT_NAME}>/imageformats
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${QT_PLUGIN_PATH}/imageformats/qgif.dll"
+            "${QT_PLUGIN_PATH}/imageformats/qicns.dll"
+            "${QT_PLUGIN_PATH}/imageformats/qico.dll"
+            "${QT_PLUGIN_PATH}/imageformats/qjpeg.dll"
+            "${QT_PLUGIN_PATH}/imageformats/qpdf.dll"
+            "${QT_PLUGIN_PATH}/imageformats/qsvg.dll"
+            "${QT_PLUGIN_PATH}/imageformats/qtga.dll"
+            "${QT_PLUGIN_PATH}/imageformats/qtiff.dll"
+            "${QT_PLUGIN_PATH}/imageformats/qwbmp.dll"
+            "${QT_PLUGIN_PATH}/imageformats/qwebp.dll"
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/imageformats/
+        COMMENT "Copying Qt image format plugins"
     )
 endif()

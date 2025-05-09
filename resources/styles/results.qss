@@ -1,0 +1,70 @@
+/* Results Page Styles */
+QFrame#resultsFrame {
+    background-color: white;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+QLabel#resultsTitle {
+    color: #1976D2;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+QTextEdit#resultsText {
+    border: 2px solid #E0E0E0;
+    border-radius: 4px;
+    padding: 16px;
+    background-color: white;
+    color: #212121;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+QTextEdit#resultsText:focus {
+    border-color: #2196F3;
+}
+
+QPushButton#backButton {
+    background-color: #757575;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-top: 16px;
+}
+
+QPushButton#backButton:hover {
+    background-color: #616161;
+}
+
+QPushButton#backButton:pressed {
+    background-color: #424242;
+}
+
+QPushButton#saveButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-top: 16px;
+    margin-left: 8px;
+}
+
+QPushButton#saveButton:hover {
+    background-color: #43A047;
+}
+
+QPushButton#saveButton:pressed {
+    background-color: #388E3C;
+}
+
+QLabel#timestampLabel {
+    color: #757575;
+    font-size: 12px;
+    margin-top: 8px;
+} 

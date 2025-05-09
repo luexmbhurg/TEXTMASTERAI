@@ -1,6 +1,12 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
-    <qresource prefix="/">
-        <file>nlp_processor.py</file>
+    <qresource prefix="/styles">
+        <file>styles/main.qss</file>
+        <file>styles/home.qss</file>
+        <file>styles/flashcards.qss</file>
+        <file>styles/quiz.qss</file>
+        <file>styles/enumerations.qss</file>
+        <file>styles/history.qss</file>
+        <file>styles/results.qss</file>
     </qresource>
 </RCC> 

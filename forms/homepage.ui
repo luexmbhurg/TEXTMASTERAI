@@ -45,6 +45,48 @@
        </layout>
       </item>
       <item>
+       <widget class="QLabel" name="analysisTypeLabel">
+        <property name="text">
+         <string>Choose Analysis Type:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="analysisButtonsLayout">
+        <item>
+         <widget class="QPushButton" name="studyGuideButton">
+          <property name="text">
+           <string>Study Guide</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="quizButton">
+          <property name="text">
+           <string>Quiz</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="flashcardsButton">
+          <property name="text">
+           <string>Flashcards</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="enumerationsButton">
+          <property name="text">
+           <string>Enumerations</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QPushButton" name="letsGoButton">
         <property name="text">
          <string>LET'S GO!</string>

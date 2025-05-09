@@ -1,0 +1,101 @@
+/* Flashcards Page Styles */
+QFrame#flashcardsFrame {
+    background-color: white;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+QLabel#flashcardsTitle {
+    color: #1976D2;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+QFrame#flashcardFrame {
+    background-color: #E3F2FD;
+    border: 2px solid #2196F3;
+    border-radius: 8px;
+    padding: 24px;
+    min-height: 200px;
+}
+
+QLabel#flashcardText {
+    color: #1976D2;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+QLabel#flashcardNumber {
+    color: #757575;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+QPushButton#flipButton {
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    min-width: 120px;
+    margin-top: 16px;
+}
+
+QPushButton#flipButton:hover {
+    background-color: #1976D2;
+}
+
+QPushButton#flipButton:pressed {
+    background-color: #1565C0;
+}
+
+QPushButton#nextButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    min-width: 120px;
+    margin-top: 16px;
+    margin-left: 8px;
+}
+
+QPushButton#nextButton:hover {
+    background-color: #43A047;
+}
+
+QPushButton#nextButton:pressed {
+    background-color: #388E3C;
+}
+
+QPushButton#prevButton {
+    background-color: #757575;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    min-width: 120px;
+    margin-top: 16px;
+    margin-right: 8px;
+}
+
+QPushButton#prevButton:hover {
+    background-color: #616161;
+}
+
+QPushButton#prevButton:pressed {
+    background-color: #424242;
+}
+
+QLabel#progressLabel {
+    color: #757575;
+    font-size: 14px;
+    margin-top: 16px;
+} 

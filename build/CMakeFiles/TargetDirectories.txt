@@ -2,3 +2,14 @@ C:/Projects/audio-to-brief-notes/build/CMakeFiles/TextMaster.dir
 C:/Projects/audio-to-brief-notes/build/CMakeFiles/INSTALL.dir
 C:/Projects/audio-to-brief-notes/build/CMakeFiles/ALL_BUILD.dir
 C:/Projects/audio-to-brief-notes/build/CMakeFiles/ZERO_CHECK.dir
+C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/CMakeFiles/INSTALL.dir
+C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/CMakeFiles/ALL_BUILD.dir
+C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/ggml/CMakeFiles/INSTALL.dir
+C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/ggml/CMakeFiles/ALL_BUILD.dir
+C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/ggml/src/CMakeFiles/ggml-base.dir
+C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/ggml/src/CMakeFiles/ggml.dir
+C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/ggml/src/CMakeFiles/ggml-cpu.dir
+C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/ggml/src/CMakeFiles/INSTALL.dir
+C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/ggml/src/ggml-cpu/CMakeFiles/INSTALL.dir
+C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/src/CMakeFiles/llama.dir
+C:/Projects/audio-to-brief-notes/build/llama.cpp/llama.cpp-master/src/CMakeFiles/INSTALL.dir

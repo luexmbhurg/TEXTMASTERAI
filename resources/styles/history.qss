@@ -1,0 +1,89 @@
+/* History Page Styles */
+QFrame#historyFrame {
+    background-color: white;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+QLabel#historyTitle {
+    color: #1976D2;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+QListWidget#historyList {
+    border: 2px solid #E0E0E0;
+    border-radius: 4px;
+    background-color: white;
+    padding: 8px;
+}
+
+QListWidget#historyList::item {
+    padding: 12px;
+    border-bottom: 1px solid #E0E0E0;
+    background-color: white;
+}
+
+QListWidget#historyList::item:selected {
+    background-color: #E3F2FD;
+    color: #1976D2;
+}
+
+QListWidget#historyList::item:hover {
+    background-color: #F5F5F5;
+}
+
+QLabel#historyItemTitle {
+    color: #1976D2;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+QLabel#historyItemDate {
+    color: #757575;
+    font-size: 12px;
+}
+
+QLabel#historyItemPreview {
+    color: #424242;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+QPushButton#clearHistoryButton {
+    background-color: #F44336;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-top: 16px;
+}
+
+QPushButton#clearHistoryButton:hover {
+    background-color: #E53935;
+}
+
+QPushButton#clearHistoryButton:pressed {
+    background-color: #D32F2F;
+}
+
+QPushButton#backButton {
+    background-color: #757575;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-top: 16px;
+    margin-left: 8px;
+}
+
+QPushButton#backButton:hover {
+    background-color: #616161;
+}
+
+QPushButton#backButton:pressed {
+    background-color: #424242;
+} 

@@ -1,0 +1,111 @@
+/* Enumerations Page Styles */
+QFrame#enumerationsFrame {
+    background-color: white;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+QLabel#enumerationsTitle {
+    color: #1976D2;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+QListWidget#enumerationsList {
+    border: 2px solid #E0E0E0;
+    border-radius: 4px;
+    background-color: white;
+    padding: 8px;
+}
+
+QListWidget#enumerationsList::item {
+    padding: 12px;
+    border-bottom: 1px solid #E0E0E0;
+    background-color: white;
+}
+
+QListWidget#enumerationsList::item:selected {
+    background-color: #E3F2FD;
+    color: #1976D2;
+}
+
+QListWidget#enumerationsList::item:hover {
+    background-color: #F5F5F5;
+}
+
+QLabel#enumerationNumber {
+    color: #1976D2;
+    font-size: 16px;
+    font-weight: bold;
+    margin-right: 8px;
+}
+
+QLabel#enumerationText {
+    color: #424242;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+QPushButton#addButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-top: 16px;
+}
+
+QPushButton#addButton:hover {
+    background-color: #43A047;
+}
+
+QPushButton#addButton:pressed {
+    background-color: #388E3C;
+}
+
+QPushButton#removeButton {
+    background-color: #F44336;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-top: 16px;
+    margin-left: 8px;
+}
+
+QPushButton#removeButton:hover {
+    background-color: #E53935;
+}
+
+QPushButton#removeButton:pressed {
+    background-color: #D32F2F;
+}
+
+QPushButton#backButton {
+    background-color: #757575;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    margin-top: 16px;
+    margin-left: 8px;
+}
+
+QPushButton#backButton:hover {
+    background-color: #616161;
+}
+
+QPushButton#backButton:pressed {
+    background-color: #424242;
+}
+
+QLabel#emptyLabel {
+    color: #757575;
+    font-size: 14px;
+    font-style: italic;
+    margin-top: 16px;
+} 

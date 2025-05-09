@@ -30,7 +30,11 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , llmProcessor(new LLMProcessor(this))
+    , m_llmProcessor(new LLMProcessor(this))
+    , m_studyGuideWatcher(new QFutureWatcher<QString>(this))
+    , isProcessing(false)
+    , resultsText(new QTextEdit(this))
+    , currentInputText("")
 {
     qDebug() << "Starting TextMaster application...";
     ui->setupUi(this);
@@ -61,14 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
     
     // Create results page
     qDebug() << "Creating results page...";
-    resultsPage = new QWidget(this);
-    QVBoxLayout* resultsLayout = new QVBoxLayout(resultsPage);
-    resultsText = new QTextEdit(resultsPage);
-    resultsText->setReadOnly(true);
-    QPushButton* backToHomeButton = new QPushButton("Back to Home", resultsPage);
-    resultsLayout->addWidget(resultsText);
-    resultsLayout->addWidget(backToHomeButton);
-    connect(backToHomeButton, &QPushButton::clicked, this, &MainWindow::showHomePage);
+    resultsPage = new ResultsPage(this);
     
     // Add pages to stacked widget
     qDebug() << "Adding pages to stacked widget...";
@@ -89,16 +86,7 @@ MainWindow::MainWindow(QWidget *parent)
     
     // Connect signals
     qDebug() << "Connecting signals...";
-    connect(homePage, &HomePage::importFileClicked, this, &MainWindow::onImportFileClicked);
-    connect(homePage, &HomePage::analyzeTextClicked, this, &MainWindow::onAnalyzeTextClicked);
-    
-    connect(flashcardsPage, &FlashcardsPage::backToHome, this, &MainWindow::showHomePage);
-    connect(quizPage, &QuizPage::backToHome, this, &MainWindow::showHomePage);
-    connect(enumerationsPage, &EnumerationsPage::backToHome, this, &MainWindow::showHomePage);
-    
-    // Connect LLM processor signals
-    connect(llmProcessor, &LLMProcessor::statusUpdate, this, &MainWindow::onLLMStatusUpdate);
-    connect(llmProcessor, &LLMProcessor::error, this, &MainWindow::onLLMError);
+    connectSignals();
     
     // Set initial state
     qDebug() << "Setting initial state...";
@@ -107,17 +95,13 @@ MainWindow::MainWindow(QWidget *parent)
     setStatusBar(statusBar);
     statusBar->showMessage("Initializing...");
     
-    // Initialize LLM in a separate thread
-    QTimer::singleShot(0, this, [this]() {
-        qDebug() << "Initializing LLM...";
-        if (!initializeLLM()) {
-            qDebug() << "Failed to initialize LLM";
-            statusBar->showMessage("LLM initialization failed. Some features may be limited.");
-            QMessageBox::warning(this, "Warning", "Failed to initialize LLM. Some features may be limited.");
-        } else {
-            statusBar->showMessage("Ready");
-        }
-    });
+    // Initialize LLM
+    qDebug() << "Initializing LLM...";
+    if (initializeLLM()) {
+        statusBar->showMessage("Ready");
+    } else {
+        statusBar->showMessage("Failed to initialize LLM");
+    }
     
     qDebug() << "Main window initialization complete";
 }
@@ -253,246 +237,233 @@ void MainWindow::onAnalyzeTextClicked()
         return;
     }
     
-    QString inputText = homePage->getInputText();
+    currentInputText = homePage->getInputText();
     statusBar->showMessage("Generating study guide...");
+    isProcessing = true;
     
-    QFuture<QString> future = llmProcessor->generateStudyGuideAsync(inputText);
-    QFutureWatcher<QString> *watcher = new QFutureWatcher<QString>(this);
-    connect(watcher, &QFutureWatcher<QString>::finished, [this, watcher, inputText]() {
-        QString result = watcher->result();
-        onStudyGuideGenerated(result);
-        addToHistory(inputText, result);
-        watcher->deleteLater();
-    });
-    watcher->setFuture(future);
-}
-
-void MainWindow::onStudyGuideGenerated(const QString& result)
-{
-    resultsText->setText(result);
-    showResultsPage();
-    statusBar->showMessage("Study guide generated", 3000);
-}
-
-void MainWindow::onLLMStatusUpdate(const QString& status)
-{
-    statusBar->showMessage(status);
-}
-
-void MainWindow::onLLMError(const QString& error)
-{
-    QMessageBox::critical(this, "Error", error);
-    statusBar->showMessage("Error: " + error, 5000);
-}
-
-void MainWindow::setupStyles()
-{
-    setStyleSheet(getMainStyleSheet());
-}
-
-QString MainWindow::getMainStyleSheet()
-{
-    return QString(
-        "QMainWindow {"
-        "    background-color: #f5f5f5;"
-        "}"
-        "QPushButton {"
-        "    background-color: #2196F3;"
-        "    color: white;"
-        "    border: none;"
-        "    padding: 8px 16px;"
-        "    border-radius: 4px;"
-        "    font-size: 14px;"
-        "}"
-        "QPushButton:hover {"
-        "    background-color: #1976D2;"
-        "}"
-        "QPushButton:disabled {"
-        "    background-color: #BDBDBD;"
-        "}"
-        "QTextEdit {"
-        "    border: 1px solid #E0E0E0;"
-        "    border-radius: 4px;"
-        "    padding: 8px;"
-        "    background-color: white;"
-        "    color: #212121;"
-        "}"
-        "QLabel {"
-        "    color: #212121;"
-        "    font-size: 14px;"
-        "}"
-        "QFrame {"
-        "    background-color: white;"
-        "    border-radius: 8px;"
-        "    padding: 16px;"
-        "}"
-        "QListWidget {"
-        "    background-color: white;"
-        "    border: 1px solid #E0E0E0;"
-        "    border-radius: 4px;"
-        "}"
-    );
-}
-
-QString MainWindow::getHeaderStyleSheet()
-{
-    return QString(
-        "QWidget {"
-        "    background-color: #2196F3;"
-        "}"
-        "QLabel {"
-        "    color: white;"
-        "    font-size: 18px;"
-        "    font-weight: bold;"
-        "}"
-    );
-}
-
-QString MainWindow::getHomePageStyleSheet()
-{
-    return QString(
-        "QFrame {"
-        "    background-color: white;"
-        "    border-radius: 8px;"
-        "    padding: 16px;"
-        "}"
-        "QLabel {"
-        "    color: #212121;"
-        "    font-size: 14px;"
-        "}"
-        "QTextEdit {"
-        "    border: 1px solid #E0E0E0;"
-        "    border-radius: 4px;"
-        "    padding: 8px;"
-        "    background-color: white;"
-        "    color: #212121;"
-        "}"
-    );
-}
-
-QString MainWindow::getResultsPageStyleSheet()
-{
-    return QString(
-        "QFrame {"
-        "    background-color: white;"
-        "    border-radius: 8px;"
-        "    padding: 16px;"
-        "}"
-        "QLabel {"
-        "    color: #212121;"
-        "    font-size: 14px;"
-        "}"
-        "QTextEdit {"
-        "    border: 1px solid #E0E0E0;"
-        "    border-radius: 4px;"
-        "    padding: 8px;"
-        "    background-color: white;"
-        "    color: #212121;"
-        "}"
-    );
-}
-
-QString MainWindow::getHistoryPageStyleSheet()
-{
-    return QString(
-        "QListWidget {"
-        "    background-color: white;"
-        "    border: 1px solid #E0E0E0;"
-        "    border-radius: 4px;"
-        "}"
-        "QLabel {"
-        "    color: #212121;"
-        "    font-size: 14px;"
-        "}"
-    );
+    // Show loading indicator
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    
+    QFuture<QString> future = m_llmProcessor->generateStudyGuideAsync(currentInputText);
+    m_studyGuideWatcher->setFuture(future);
 }
 
 bool MainWindow::validateInputText()
 {
-    QString text = homePage->getInputText().trimmed();
-    if (text.isEmpty()) {
-        QMessageBox::warning(this, "Warning", "Please enter some text to analyze.");
+    QString inputText = homePage->getInputText();
+    if (inputText.isEmpty()) {
+        QMessageBox::warning(this, "Error", "Please enter some text to analyze.");
         return false;
     }
+    
+    // Count words
+    QRegularExpression wordRegex("\\b\\w+\\b");
+    QRegularExpressionMatchIterator i = wordRegex.globalMatch(inputText);
+    int wordCount = 0;
+    while (i.hasNext()) {
+        i.next();
+        wordCount++;
+    }
+    
+    if (wordCount > 1000) {
+        QMessageBox::warning(this, "Error", "Text is too long. Please limit input to 1000 words.");
+        return false;
+    }
+    
     return true;
 }
 
-void MainWindow::addToHistory(const QString& inputText, const QString& result)
+void MainWindow::handleLLMResponse(const QString& response)
+{
+    // Update the results page with the response
+    if (resultsPage) {
+        resultsPage->setResults(response);
+    } else {
+        qWarning() << "Results page is null";
+    }
+}
+
+void MainWindow::handleLLMError(const QString& error)
+{
+    QApplication::restoreOverrideCursor();
+    isProcessing = false;
+    QMessageBox::critical(this, "Error", "LLM Error: " + error);
+    statusBar->showMessage("Error: " + error);
+}
+
+void MainWindow::handleLLMStatus(const QString& status)
+{
+    statusBar->showMessage(status);
+}
+
+void MainWindow::onStudyGuideGenerated(const QString& result)
+{
+    QApplication::restoreOverrideCursor();
+    isProcessing = false;
+    
+    if (!result.isEmpty()) {
+        resultsPage->setResults(result);
+        addToHistory(currentInputText, result);
+        showResultsPage();
+        statusBar->showMessage("Study guide generated successfully");
+    } else {
+        statusBar->showMessage("Failed to generate study guide");
+    }
+}
+
+void MainWindow::addToHistory(const QString& input, const QString& result)
 {
     ProcessingHistoryItem item;
-    item.inputText = inputText;
+    item.inputText = input;
     item.result = result;
     item.timestamp = QDateTime::currentDateTime();
     
-    processingHistory.append(item);
+    processingHistory.prepend(item);
     
-    QString displayText = QString("%1\n%2")
-        .arg(item.timestamp.toString("yyyy-MM-dd hh:mm:ss"))
-        .arg(item.inputText.left(100) + "...");
+    // Update history list widget
+    historyList->clear();
+    for (const auto& historyItem : processingHistory) {
+        QString displayText = QString("%1\n%2")
+            .arg(historyItem.timestamp.toString("yyyy-MM-dd hh:mm:ss"))
+            .arg(historyItem.inputText.left(100) + "...");
+        historyList->addItem(displayText);
+    }
     
-    historyList->addItem(displayText);
     saveHistory();
 }
 
 void MainWindow::loadHistory()
 {
-    QFile file(QCoreApplication::applicationDirPath() + "/history.json");
-    if (file.open(QIODevice::ReadOnly)) {
-        QByteArray data = file.readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(data);
-        QJsonArray array = doc.array();
-        
-        for (const QJsonValue& value : array) {
-            QJsonObject obj = value.toObject();
-            ProcessingHistoryItem item;
-            item.inputText = obj["inputText"].toString();
-            item.result = obj["result"].toString();
-            item.timestamp = QDateTime::fromString(obj["timestamp"].toString(), Qt::ISODate);
-            
-            processingHistory.append(item);
-            
-            QString displayText = QString("%1\n%2")
-                .arg(item.timestamp.toString("yyyy-MM-dd hh:mm:ss"))
-                .arg(item.inputText.left(100) + "...");
-            
-            historyList->addItem(displayText);
-        }
-        
-        file.close();
+    QFile file("history.json");
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Could not open history file";
+        return;
+    }
+    
+    QByteArray data = file.readAll();
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    QJsonArray array = doc.array();
+    
+    processingHistory.clear();
+    for (const QJsonValue& value : array) {
+        QJsonObject obj = value.toObject();
+        ProcessingHistoryItem item;
+        item.inputText = obj["input"].toString();
+        item.result = obj["result"].toString();
+        item.timestamp = QDateTime::fromString(obj["timestamp"].toString(), Qt::ISODate);
+        processingHistory.append(item);
+    }
+    
+    // Update history list widget
+    historyList->clear();
+    for (const auto& historyItem : processingHistory) {
+        QString displayText = QString("%1\n%2")
+            .arg(historyItem.timestamp.toString("yyyy-MM-dd hh:mm:ss"))
+            .arg(historyItem.inputText.left(100) + "...");
+        historyList->addItem(displayText);
     }
 }
 
 void MainWindow::saveHistory()
 {
     QJsonArray array;
-    for (const ProcessingHistoryItem& item : processingHistory) {
+    for (const auto& item : processingHistory) {
         QJsonObject obj;
-        obj["inputText"] = item.inputText;
+        obj["input"] = item.inputText;
         obj["result"] = item.result;
         obj["timestamp"] = item.timestamp.toString(Qt::ISODate);
         array.append(obj);
     }
     
     QJsonDocument doc(array);
-    QFile file(QCoreApplication::applicationDirPath() + "/history.json");
-    if (file.open(QIODevice::WriteOnly)) {
-        file.write(doc.toJson());
-        file.close();
+    QFile file("history.json");
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "Could not open history file for writing";
+        return;
     }
+    
+    file.write(doc.toJson());
 }
 
 bool MainWindow::initializeLLM()
 {
-    QString modelPath = QCoreApplication::applicationDirPath() + "/models/mistral-7b-v0.1.Q4_K_M.gguf";
-    QFile modelFile(modelPath);
-    if (!modelFile.exists()) {
-        QMessageBox::warning(this, "Warning",
+    QString modelPath = QCoreApplication::applicationDirPath() + "/models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf";
+    qDebug() << "Initializing LLM with model:" << modelPath;
+    
+    if (!QFile::exists(modelPath)) {
+        QMessageBox::critical(this, "Error",
             "Model file not found: " + modelPath + "\n\n"
-            "Please download the model file from:\n"
-            "https://huggingface.co/TheBloke/Mistral-7B-v0.1-GGUF\n\n"
-            "and place it in the 'models' directory.");
+            "Please download the model from:\n"
+            "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF\n"
+            "and place it in the models directory.");
         return false;
     }
     
-    return llmProcessor->initialize(modelPath);
+    return m_llmProcessor->initialize(modelPath);
+}
+
+void MainWindow::connectSignals()
+{
+    // Connect LLM signals
+    connect(m_llmProcessor, &LLMProcessor::error, this, &MainWindow::handleLLMError);
+    connect(m_llmProcessor, &LLMProcessor::statusUpdate, this, &MainWindow::handleLLMStatus);
+    
+    // Connect study guide watcher
+    connect(m_studyGuideWatcher, &QFutureWatcher<QString>::finished, this, [this]() {
+        QString result = m_studyGuideWatcher->result();
+        if (!result.isEmpty()) {
+            resultsPage->setResults(result);
+            addToHistory(currentInputText, result);
+            showResultsPage();
+            statusBar->showMessage("Study guide generated successfully");
+        } else {
+            statusBar->showMessage("Failed to generate study guide");
+        }
+        QApplication::restoreOverrideCursor();
+        isProcessing = false;
+    });
+    
+    // Connect home page signals
+    connect(homePage, &HomePage::analyzeTextClicked, this, &MainWindow::onAnalyzeTextClicked);
+    
+    // Load history
+    loadHistory();
+}
+
+void MainWindow::setupStyles()
+{
+    // Load main style sheet
+    QFile styleFile("resources/styles/main.qss");
+    if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
+        QString style = QLatin1String(styleFile.readAll());
+        qApp->setStyleSheet(style);
+        styleFile.close();
+    } else {
+        qWarning() << "Failed to load main style sheet from" << styleFile.fileName();
+    }
+    
+    // Load page-specific styles
+    loadPageStyles();
+}
+
+void MainWindow::loadPageStyles()
+{
+    // Load styles for each page
+    const QStringList pages = {"home", "flashcards", "quiz", "enumerations", "history", "results"};
+    for (const QString& page : pages) {
+        QFile styleFile(QString("resources/styles/%1.qss").arg(page));
+        if (styleFile.open(QFile::ReadOnly | QFile::Text)) {
+            QString style = QLatin1String(styleFile.readAll());
+            // Apply style to the corresponding page
+            if (page == "home" && homePage) homePage->setStyleSheet(style);
+            else if (page == "flashcards" && flashcardsPage) flashcardsPage->setStyleSheet(style);
+            else if (page == "quiz" && quizPage) quizPage->setStyleSheet(style);
+            else if (page == "enumerations" && enumerationsPage) enumerationsPage->setStyleSheet(style);
+            else if (page == "history" && historyPage) historyPage->setStyleSheet(style);
+            else if (page == "results" && resultsPage) resultsPage->setStyleSheet(style);
+            styleFile.close();
+        } else {
+            qWarning() << "Failed to load style sheet for" << page << "from" << styleFile.fileName();
+        }
+    }
 }
