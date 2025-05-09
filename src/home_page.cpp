@@ -11,6 +11,12 @@ HomePage::HomePage(QWidget *parent)
 {
     ui->setupUi(this);
     
+    // Make analysis type buttons checkable
+    ui->studyGuideButton->setCheckable(true);
+    ui->quizButton->setCheckable(true);
+    ui->flashcardsButton->setCheckable(true);
+    ui->enumerationsButton->setCheckable(true);
+    
     // Connect signals
     connect(ui->textInput, &QTextEdit::textChanged, this, &HomePage::onTextChanged);
     connect(ui->importButton, &QPushButton::clicked, this, &HomePage::onImportClicked);

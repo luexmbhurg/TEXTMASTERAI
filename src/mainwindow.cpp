@@ -98,7 +98,7 @@ MainWindow::MainWindow(QWidget *parent)
     // Initialize LLM
     qDebug() << "Initializing LLM...";
     if (initializeLLM()) {
-        statusBar->showMessage("Ready");
+    statusBar->showMessage("Ready");
     } else {
         statusBar->showMessage("Failed to initialize LLM");
     }
@@ -201,7 +201,7 @@ void MainWindow::onDownloadClicked()
             out << resultsText->toPlainText();
             file.close();
             statusBar->showMessage("File saved successfully", 3000);
-        } else {
+    } else {
             QMessageBox::critical(this, "Error", "Could not save file: " + fileName);
         }
     }
@@ -347,11 +347,11 @@ void MainWindow::loadHistory()
     processingHistory.clear();
     for (const QJsonValue& value : array) {
         QJsonObject obj = value.toObject();
-        ProcessingHistoryItem item;
+            ProcessingHistoryItem item;
         item.inputText = obj["input"].toString();
         item.result = obj["result"].toString();
         item.timestamp = QDateTime::fromString(obj["timestamp"].toString(), Qt::ISODate);
-        processingHistory.append(item);
+            processingHistory.append(item);
     }
     
     // Update history list widget
@@ -373,8 +373,8 @@ void MainWindow::saveHistory()
         obj["result"] = item.result;
         obj["timestamp"] = item.timestamp.toString(Qt::ISODate);
         array.append(obj);
-    }
-    
+}
+
     QJsonDocument doc(array);
     QFile file("history.json");
     if (!file.open(QIODevice::WriteOnly)) {
@@ -418,7 +418,7 @@ void MainWindow::connectSignals()
             statusBar->showMessage("Study guide generated successfully");
         } else {
             statusBar->showMessage("Failed to generate study guide");
-        }
+}
         QApplication::restoreOverrideCursor();
         isProcessing = false;
     });
@@ -444,7 +444,7 @@ void MainWindow::setupStyles()
     
     // Load page-specific styles
     loadPageStyles();
-}
+        }
 
 void MainWindow::loadPageStyles()
 {
@@ -462,7 +462,7 @@ void MainWindow::loadPageStyles()
             else if (page == "history" && historyPage) historyPage->setStyleSheet(style);
             else if (page == "results" && resultsPage) resultsPage->setStyleSheet(style);
             styleFile.close();
-        } else {
+            } else {
             qWarning() << "Failed to load style sheet for" << page << "from" << styleFile.fileName();
         }
     }

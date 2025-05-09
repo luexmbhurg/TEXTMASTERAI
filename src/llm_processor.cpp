@@ -166,10 +166,12 @@ bool LLMProcessor::initialize(const QString& modelPath)
 QString LLMProcessor::processText(const QString& prompt)
 {
     if (!m_impl->context || !m_impl->model) {
+        qDebug() << "LLM not initialized - context:" << (m_impl->context ? "valid" : "null") 
+                 << "model:" << (m_impl->model ? "valid" : "null");
         emit error("LLM not initialized");
         return QString();
     }
-
+    
     qDebug() << "Processing prompt:" << prompt;
 
     try {
@@ -183,6 +185,7 @@ QString LLMProcessor::processText(const QString& prompt)
 
         // Convert QString to std::string
         std::string prompt_std = prompt.toStdString();
+        qDebug() << "Converted prompt to std::string, length:" << prompt_std.length();
 
         // Tokenize the prompt
         std::vector<llama_token> tokens;
@@ -190,7 +193,7 @@ QString LLMProcessor::processText(const QString& prompt)
         int n_tokens = llama_tokenize(vocab, prompt_std.c_str(), prompt_std.length(), tokens.data(), tokens.size(), true, false);
         
         if (n_tokens < 0) {
-            qDebug() << "Failed to tokenize input";
+            qDebug() << "Failed to tokenize input, error code:" << n_tokens;
             emit error("Failed to tokenize input");
             return QString();
         }
@@ -200,7 +203,7 @@ QString LLMProcessor::processText(const QString& prompt)
 
         // Process the text in chunks
         std::vector<llama_token> response_tokens;
-        const int max_response_tokens = 2048;  // Maximum tokens in response
+        const int max_response_tokens = 2048;  // Increased from 1024 to allow for longer responses
         
         // Create initial batch for the prompt
         llama_batch batch = llama_batch_init(tokens.size(), 0, 1);
@@ -221,6 +224,9 @@ QString LLMProcessor::processText(const QString& prompt)
         }
         
         // Generate response tokens
+        int consecutive_empty_tokens = 0;
+        const int max_empty_tokens = 5;  // Maximum number of consecutive empty tokens before stopping
+        
         for (int i = 0; i < max_response_tokens; i++) {
             // Create a new batch for the next token
             llama_batch next_batch = llama_batch_init(1, 0, 1);
@@ -233,7 +239,7 @@ QString LLMProcessor::processText(const QString& prompt)
             
             // Process next token
             if (llama_decode(m_impl->context, next_batch) != 0) {
-                qDebug() << "Failed to decode token";
+                qDebug() << "Failed to decode token at position" << i;
                 llama_batch_free(next_batch);
                 break;
             }
@@ -241,7 +247,7 @@ QString LLMProcessor::processText(const QString& prompt)
             // Get logits for the next token
             const float* logits = llama_get_logits_ith(m_impl->context, 0);
             if (!logits) {
-                qDebug() << "Failed to get logits";
+                qDebug() << "Failed to get logits at position" << i;
                 llama_batch_free(next_batch);
                 break;
             }
@@ -260,7 +266,7 @@ QString LLMProcessor::processText(const QString& prompt)
             }
             
             if (best_token == -1) {
-                qDebug() << "Failed to find best token";
+                qDebug() << "Failed to find best token at position" << i;
                 llama_batch_free(next_batch);
                 break;
             }
@@ -268,14 +274,40 @@ QString LLMProcessor::processText(const QString& prompt)
             // Add token to response
             response_tokens.push_back(best_token);
             
-            // Check for end of text
+            // Check for end of text or stop conditions
             if (best_token == llama_vocab_eos(vocab)) {
+                qDebug() << "End of text token found at position" << i;
                 llama_batch_free(next_batch);
                 break;
             }
             
+            // Check for repeated tokens
+            if (response_tokens.size() > 3 && 
+                response_tokens[response_tokens.size()-1] == response_tokens[response_tokens.size()-2] &&
+                response_tokens[response_tokens.size()-2] == response_tokens[response_tokens.size()-3]) {
+                qDebug() << "Stop condition met: repeated tokens at position" << i;
+                llama_batch_free(next_batch);
+                break;
+            }
+            
+            // Check for empty tokens
+            char piece[8];
+            int length = llama_token_to_piece(vocab, best_token, piece, sizeof(piece), 0, false);
+            if (length <= 0) {
+                consecutive_empty_tokens++;
+                if (consecutive_empty_tokens >= max_empty_tokens) {
+                    qDebug() << "Stop condition met: too many consecutive empty tokens at position" << i;
+                    llama_batch_free(next_batch);
+                    break;
+                }
+            } else {
+                consecutive_empty_tokens = 0;
+            }
+            
             llama_batch_free(next_batch);
         }
+        
+        qDebug() << "Generated" << response_tokens.size() << "response tokens";
         
         // Convert tokens to text
         std::string response;
@@ -287,9 +319,18 @@ QString LLMProcessor::processText(const QString& prompt)
             }
         }
         
-        return QString::fromStdString(response);
+        // Clean up the response
+        QString cleaned_response = QString::fromStdString(response).trimmed();
+        if (cleaned_response.isEmpty()) {
+            qDebug() << "Generated response is empty";
+            return "Failed to generate response. Please try again.";
+        }
+        
+        qDebug() << "Successfully generated response of length:" << cleaned_response.length();
+        return cleaned_response;
 
     } catch (const std::exception& e) {
+        qDebug() << "Exception in processText:" << e.what();
         emit error(QString("Error processing text: %1").arg(e.what()));
         return QString();
     }
@@ -349,15 +390,27 @@ QFuture<QString> LLMProcessor::generateEnumerationsAsync(const QString& input)
 
 QString LLMProcessor::formatStudyGuidePrompt(const QString& input)
 {
-    return QString("Create a comprehensive study guide for the following text:\n\n%1\n\n"
-                  "Study Guide:").arg(input);
+    return QString("Create a study guide from this text. Follow these instructions exactly:\n\n"
+                  "1. KEY TERMS AND DEFINITIONS:\n"
+                  "   - Extract the most important technical terms and concepts\n"
+                  "   - Write clear, complete definitions for each term\n"
+                  "   - Format as: 'Term: Definition'\n\n"
+                  "2. MAIN IDEAS:\n"
+                  "   - List the key points from the text\n"
+                  "   - Each point should be a complete sentence\n"
+                  "   - Number each point (1., 2., etc.)\n\n"
+                  "3. BRIEF SUMMARY:\n"
+                  "   - Write 2-3 sentences summarizing the main points\n"
+                  "   - Focus on the most important information\n"
+                  "   - Keep it clear and concise\n\n"
+                  "Text to analyze:\n%1").arg(input);
 }
 
 QString LLMProcessor::formatQuizPrompt(const QString& input)
 {
     return QString("Create a quiz with multiple choice questions based on this text:\n\n%1\n\n"
                   "Quiz:").arg(input);
-}
+        }
 
 QString LLMProcessor::formatFlashcardsPrompt(const QString& input)
 {
